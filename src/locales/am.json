@@ -1,0 +1,75 @@
+{
+  "common": {
+    "welcome": "እንኳን ደህና መጡ",
+    "logout": "ውጣ",
+    "loading": "በመጫን ላይ...",
+    "error": "ስህተት",
+    "success": "ስኬት",
+    "cancel": "ይቅር",
+    "save": "ያስቀምጡ",
+    "delete": "ሰርዝ",
+    "edit": "ያርትዑ",
+    "back": "ተመለስ"
+  },
+  "auth": {
+    "login": "ግባ",
+    "signup": "ተመዝገብ",
+    "email": "ኢሜይል",
+    "password": "ይለፍ ቃል",
+    "name": "ሙሉ ስም",
+    "role": "እኔ ነኝ",
+    "tenant": "ተከራይ",
+    "landlord": "ቤት ባለቤት",
+    "forgotPassword": "ይለፍ ቃል ረስተዋል?",
+    "noAccount": "계정이 없으신가요?",
+    "haveAccount": "ቀድሞ 계정 አለዎት?",
+    "loginSuccess": "ግባ ስኬታማ ነበር!",
+    "signupSuccess": "ምዝገባ ስኬታማ ነበር!",
+    "loginFailed": "ግባ ወድቋል",
+    "signupFailed": "ምዝገባ ወድቋል"
+  },
+  "profile": {
+    "editProfile": "መገለጫ ያርትዑ",
+    "viewProfile": "መገለጫ ይመልከቱ",
+    "fullName": "ሙሉ ስም",
+    "email": "ኢሜይል",
+    "phone": "ስልክ ቁጥር",
+    "language": "ምርጥ ቋንቋ",
+    "accountType": "ሂሳብ ዓይነት",
+    "changePhoto": "ፎቶ ይለውጡ",
+    "saveChanges": "ለውጦችን ያስቀምጡ",
+    "profileUpdated": "መገለጫ በተሳካ ሁኔታ ተዘምኗል!"
+  },
+  "dashboard": {
+    "dashboard": "ዳሽቦርድ",
+    "welcome": "እንኳን ደህና መጡ",
+    "myProperties": "የእኔ ንብረቶች",
+    "activeListings": "ንቁ ዝርዝሮች",
+    "searchProperties": "ንብረቶች ይፈልጉ",
+    "myApplications": "የእኔ ማመልከቻዎች",
+    "savedProperties": "የተቀመጡ ንብረቶች",
+    "manageUsers": "ተጠቃሚዎችን ያስተዳድሩ",
+    "manageProperties": "ንብረቶችን ያስተዳድሩ",
+    "reports": "ሪፖርቶች"
+  },
+  "tenant": {
+    "savedProperties": "የተቀመጡ ንብረቶች",
+    "activeApplications": "ንቁ ማመልከቻዎች",
+    "recentlyViewed": "በቅርቡ ታይቷል",
+    "recentActivity": "ቅርብ ጊዜ ያለው እንቅስቃሴ"
+  },
+  "landlord": {
+    "activeListings": "ንቁ ዝርዝሮች",
+    "pendingApplications": "በመጠባበቅ ላይ ያሉ ማመልከቻዎች",
+    "totalViews": "ጠቅላላ ሚዛን",
+    "listProperty": "ንብረት ዝርዝር",
+    "recentApplications": "ቅርብ ጊዜ ያለው ማመልከቻዎች"
+  },
+  "admin": {
+    "totalUsers": "ጠቅላላ ተጠቃሚዎች",
+    "totalProperties": "ጠቅላላ ንብረቶች",
+    "pendingReports": "በመጠባበቅ ላይ ያሉ ሪፖርቶች",
+    "systemHealth": "የስርዓት ጤና",
+    "recentUsers": "ቅርብ ጊዜ ያለው ተጠቃሚዎች"
+  }
+}

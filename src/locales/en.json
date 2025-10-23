@@ -1,0 +1,75 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "role": "I am a",
+    "tenant": "Tenant",
+    "landlord": "Landlord",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "loginSuccess": "Login successful!",
+    "signupSuccess": "Signup successful!",
+    "loginFailed": "Login failed",
+    "signupFailed": "Signup failed"
+  },
+  "profile": {
+    "editProfile": "Edit Profile",
+    "viewProfile": "View Profile",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "language": "Preferred Language",
+    "accountType": "Account Type",
+    "changePhoto": "Change Photo",
+    "saveChanges": "Save Changes",
+    "profileUpdated": "Profile updated successfully!"
+  },
+  "dashboard": {
+    "dashboard": "Dashboard",
+    "welcome": "Welcome",
+    "myProperties": "My Properties",
+    "activeListings": "Active Listings",
+    "searchProperties": "Search Properties",
+    "myApplications": "My Applications",
+    "savedProperties": "Saved Properties",
+    "manageUsers": "Manage Users",
+    "manageProperties": "Manage Properties",
+    "reports": "Reports"
+  },
+  "tenant": {
+    "savedProperties": "Saved Properties",
+    "activeApplications": "Active Applications",
+    "recentlyViewed": "Recently Viewed",
+    "recentActivity": "Recent Activity"
+  },
+  "landlord": {
+    "activeListings": "Active Listings",
+    "pendingApplications": "Pending Applications",
+    "totalViews": "Total Views",
+    "listProperty": "List Property",
+    "recentApplications": "Recent Applications"
+  },
+  "admin": {
+    "totalUsers": "Total Users",
+    "totalProperties": "Total Properties",
+    "pendingReports": "Pending Reports",
+    "systemHealth": "System Health",
+    "recentUsers": "Recent Users"
+  }
+}

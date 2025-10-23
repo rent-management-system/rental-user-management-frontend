@@ -1,0 +1,75 @@
+{
+  "common": {
+    "welcome": "Akam",
+    "logout": "Ba'i",
+    "loading": "Itti fooyyaa jira...",
+    "error": "Dogoggora",
+    "success": "Milkaa'ina",
+    "cancel": "Hir'isu",
+    "save": "Kuusuu",
+    "delete": "Balleessuu",
+    "edit": "Gulaaluu",
+    "back": "Duubatti"
+  },
+  "auth": {
+    "login": "Seenuun",
+    "signup": "Galmaa'u",
+    "email": "Imeelii",
+    "password": "Jecha icciitii",
+    "name": "Maqaa Guutuu",
+    "role": "Ani",
+    "tenant": "Konkolaataa",
+    "landlord": "Abbaa Mana",
+    "forgotPassword": "Jecha icciitii irraanfatte?",
+    "noAccount": "Akkauntii hin qabdu?",
+    "haveAccount": "Akkauntii dura qabda?",
+    "loginSuccess": "Seenuun milkaa'ina!",
+    "signupSuccess": "Galmaa'uu milkaa'ina!",
+    "loginFailed": "Seenuun dogoggore",
+    "signupFailed": "Galmaa'uu dogoggore"
+  },
+  "profile": {
+    "editProfile": "Profaayila Gulaaluu",
+    "viewProfile": "Profaayila Ilaaluu",
+    "fullName": "Maqaa Guutuu",
+    "email": "Imeelii",
+    "phone": "Lakkoobsa Bilbilaa",
+    "language": "Afaan Filatame",
+    "accountType": "Gosa Akkauntii",
+    "changePhoto": "Footon Jijjiiru",
+    "saveChanges": "Jijjiiramawwan Kuusuu",
+    "profileUpdated": "Profaayili milkaa'inaan haaroomfame!"
+  },
+  "dashboard": {
+    "dashboard": "Daashboorii",
+    "welcome": "Akam",
+    "myProperties": "Qabeenya Koo",
+    "activeListings": "Tarree Soorate",
+    "searchProperties": "Qabeenya Barbaadu",
+    "myApplications": "Gaaffii Koo",
+    "savedProperties": "Qabeenya Kuusame",
+    "manageUsers": "Fayyadamtoota Bulchiinsa",
+    "manageProperties": "Qabeenya Bulchiinsa",
+    "reports": "Gabaasaa"
+  },
+  "tenant": {
+    "savedProperties": "Qabeenya Kuusame",
+    "activeApplications": "Gaaffii Soorate",
+    "recentlyViewed": "Yeroo Dhiyoo Ilaalame",
+    "recentActivity": "Hojii Yeroo Dhiyoo"
+  },
+  "landlord": {
+    "activeListings": "Tarree Soorate",
+    "pendingApplications": "Gaaffii Eegamaa Jiru",
+    "totalViews": "Ilaalcha Guutuu",
+    "listProperty": "Qabeenya Tarreessu",
+    "recentApplications": "Gaaffii Yeroo Dhiyoo"
+  },
+  "admin": {
+    "totalUsers": "Fayyadamtoonni Guutuu",
+    "totalProperties": "Qabeenya Guutuu",
+    "pendingReports": "Gabaasaa Eegamaa Jiru",
+    "systemHealth": "Fayyaa Sirnaa",
+    "recentUsers": "Fayyadamtoonni Yeroo Dhiyoo"
+  }
+}
