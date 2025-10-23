@@ -4,7 +4,7 @@ import { apiClient } from "./api-client"
 
 interface AuthStore extends AuthState {
   login: (email: string, password: string) => Promise<void>
-  signup: (name: string, email: string, password: string, role: string) => Promise<void>
+  signup: (name: string, email: string, password: string, phone: string, role: string) => Promise<void>
   googleAuth: (token: string) => Promise<void>
   logout: () => void
   setUser: (user: User | null) => void
@@ -37,10 +37,10 @@ export const useAuthStore = create<AuthStore>((set) => {
       }
     },
 
-    signup: async (name: string, email: string, password: string, role: string) => {
+    signup: async (name: string, email: string, password: string, phone: string, role: string) => {
       set({ isLoading: true, error: null })
       try {
-        const response = await apiClient.signup(name, email, password, role)
+        const response = await apiClient.signup(name, email, password, phone, role)
         localStorage.setItem("auth_token", response.token)
         localStorage.setItem("auth_user", JSON.stringify(response.user))
         set({ user: response.user, token: response.token, isLoading: false })
