@@ -101,10 +101,52 @@ export const SignupForm = () => {
         formData.phone,
         formData.role
       );
-      toast.success("Signup successful!");
-      navigate("/dashboard");
-    } catch (err) {
-      toast.error(error || "Signup failed");
+      
+      // Show success message
+      toast.success("🎉 Registration successful! You can now log in.", {
+        duration: 4000,
+        position: 'top-center',
+        icon: '✅',
+        style: {
+          background: '#10B981',
+          color: '#fff',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+        }
+      });
+      
+      // Redirect to login after a short delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      
+      // Handle specific error cases
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        const errorMessage = err.response.data?.detail || 
+                           err.response.data?.message || 
+                           'Signup failed. Please try again.';
+        toast.error(errorMessage);
+        
+        // Handle field-specific errors
+        if (err.response.data?.errors) {
+          const fieldErrors = err.response.data.errors;
+          setErrors(prev => ({
+            ...prev,
+            ...fieldErrors
+          }));
+        }
+      } else if (err.request) {
+        // The request was made but no response was received
+        toast.error("Cannot connect to the server. Please check your connection.");
+      } else {
+        // Something happened in setting up the request
+        toast.error(err.message || "An unexpected error occurred");
+      }
     }
   }
 
