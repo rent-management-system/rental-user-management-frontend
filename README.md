@@ -50,7 +50,7 @@ A production-ready micro-frontend module for user management in a rental applica
 
 ## Project Structure
 
-\`\`\`
+```
 src/
 ├── components/
 │   ├── auth/              # Authentication components
@@ -96,7 +96,7 @@ src/
 ├── App.tsx                # Main app component
 ├── main.tsx               # Entry point
 └── index.css              # Global styles
-\`\`\`
+```
 
 ## Setup Instructions
 
