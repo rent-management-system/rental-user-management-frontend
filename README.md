@@ -106,27 +106,27 @@ src/
 ### Installation
 
 1. **Clone the repository**
-   \`\`\`bash
+   ```
    git clone <repository-url>
    cd rental-user-management
-   \`\`\`
+   ```
 
 2. **Install dependencies**
-   \`\`\`bash
+  ```
    npm install
-   \`\`\`
+   ```
 
 3. **Configure environment variables**
    Create a `.env` file in the root directory:
-   \`\`\`env
+```
    VITE_API_BASE_URL=http://localhost:5000/api
    VITE_GOOGLE_CLIENT_ID=your_google_client_id
-   \`\`\`
+   ```
 
 4. **Start development server**
-   \`\`\`bash
+   ```
    npm run dev
-   \`\`\`
+   ```
 
    The app will open at `http://localhost:3000`
 
@@ -140,14 +140,14 @@ The optimized build will be in the `dist/` directory.
 
 ### Run Tests
 
-\`\`\`bash
+```
 npm run test
-\`\`\`
+```
 
 Run tests with UI:
-\`\`\`bash
+```
 npm run test:ui
-\`\`\`
+```
 
 ## API Integration
 
@@ -167,7 +167,7 @@ The module expects the following backend endpoints:
 ### Expected Response Format
 
 **Login/Signup Response:**
-\`\`\`json
+```
 {
   "token": "jwt_token_here",
   "user": {
@@ -181,15 +181,15 @@ The module expects the following backend endpoints:
     "updatedAt": "2024-01-01T00:00:00Z"
   }
 }
-\`\`\`
+```
 
 **Error Response:**
-\`\`\`json
+```
 {
   "message": "Error description",
   "statusCode": 400
 }
-\`\`\`
+```
 
 ## Configuration
 
@@ -197,7 +197,7 @@ The module expects the following backend endpoints:
 
 The app uses CSS variables for theming. Customize colors in `src/index.css`:
 
-\`\`\`css
+```
 :root {
   --primary: 59 130 246;           /* Blue for trust */
   --secondary: 34 197 94;          /* Green for affordability */
@@ -207,7 +207,7 @@ The app uses CSS variables for theming. Customize colors in `src/index.css`:
   --muted: 226 232 240;
   --border: 226 232 240;
 }
-\`\`\`
+```
 
 ### i18n Configuration
 
