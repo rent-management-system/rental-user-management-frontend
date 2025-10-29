@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import type { User } from "@/types"
+import type { User, UserRole } from "@/types"
 
 describe("Profile Types", () => {
   it("should create valid user object", () => {
@@ -20,7 +20,7 @@ describe("Profile Types", () => {
   })
 
   it("should handle different user roles", () => {
-    const roles: Array<"tenant" | "landlord" | "admin"> = ["tenant", "landlord", "admin"]
+    const roles: Array<UserRole> = ["tenant", "landlord", "admin"]
 
     roles.forEach((role) => {
       const user: User = {
