@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError } from "axios"
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://rent-managment-system-user-magt.onrender.com"
 
 class ApiClient {
   private client: AxiosInstance
@@ -61,26 +61,37 @@ class ApiClient {
   }
 
   async login(email: string, password: string) {
-    const endpoints = [
-      '/auth/login',
-      '/api/auth/login',
-      '/api/v1/auth/login',
-      '/users/login',
-      '/api/users/login',
-      '/api/v1/users/login'
-    ]
-    
-    return this.tryEndpoints(endpoints, { email, password })
+    const params = new URLSearchParams();
+    params.append('grant_type', 'password');
+    params.append('username', email);
+    params.append('password', password);
+    params.append('scope', '');
+    params.append('client_id', 'web-client');
+    params.append('client_secret', 'web-secret');
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    };
+
+    try {
+      const response = await this.client.post('/auth/login', params.toString(), config);
+      return response.data;
+    } catch (error: any) {
+      console.error('Login error:', error.response?.data || error.message);
+      throw error;
+    }
   }
 
   async signup(name: string, email: string, password: string, phone: string, role: string) {
     try {
-      const response = await this.client.post('/auth/register', {
+      const response = await this.client.post('/users/register', {
         name,
         email,
         phone,
         password,
-        role,
+        role: role.toLowerCase(), // Ensure role is lowercase to match backend expectations
       })
       return response.data
     } catch (error: any) {
