@@ -9,12 +9,18 @@ import { toast } from "sonner"
 export const ProfileEditor = () => {
   const { user } = useAuth()
   const { isLoading, updateProfile } = useProfile()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string
+    full_name: string
+    phone: string
+    phone_number: string
+    preferred_language: "en" | "am" | "om"
+  }>({
     name: "",
     full_name: "",
     phone: "",
     phone_number: "",
-    preferred_language: "en" as const,
+    preferred_language: "en",
   })
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -26,7 +32,7 @@ export const ProfileEditor = () => {
         full_name: user.full_name || "",
         phone: user.phone_number || "",
         phone_number: user.phone_number || "",
-        preferred_language: user.preferred_language || "en",
+        preferred_language: (user.preferred_language as "en" | "am" | "om") || "en",
       })
       if (user.profile_photo) {
         setPhotoPreview(user.profile_photo)
@@ -75,16 +81,27 @@ export const ProfileEditor = () => {
     e.preventDefault()
 
     try {
-      const updateData: ProfileUpdateData = {
+      const formDataToSend = new FormData()
+      
+      // Add all form data to FormData
+      Object.entries({
         name: formData.name,
         full_name: formData.full_name,
         phone: formData.phone,
         phone_number: formData.phone_number,
         preferred_language: formData.preferred_language,
-        ...(selectedFile && { profile_photo: selectedFile })
+      }).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formDataToSend.append(key, value as string)
+        }
+      })
+      
+      // Add profile photo if selected
+      if (selectedFile) {
+        formDataToSend.append('profile_photo', selectedFile)
       }
 
-      await updateProfile(updateData)
+      await updateProfile(formDataToSend as unknown as ProfileUpdateData)
       toast.success("Profile updated successfully")
       setSelectedFile(null)
     } catch (err: any) {
