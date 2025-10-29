@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useProfile } from "@/hooks/useProfile"
 import { useAuth } from "@/hooks/useAuth"
@@ -10,11 +8,11 @@ import { toast } from "sonner"
 
 export const ProfileEditor = () => {
   const { user } = useAuth()
-  const { profile, isLoading, error, updateProfile, clearError } = useProfile()
+  const { isLoading, updateProfile } = useProfile()
   const [formData, setFormData] = useState<ProfileUpdateData>({
     name: "",
     phone: "",
-    preferredLanguage: "en",
+    preferred_language: "en",
   })
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -22,61 +20,73 @@ export const ProfileEditor = () => {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || "",
-        phone: user.phone || "",
-        preferredLanguage: user.preferredLanguage || "en",
+        name: user.full_name || "",
+        phone: user.phone_number || "",
+        preferred_language: (user.preferred_language as "en" | "am" | "om") || "en",
       })
-      if (user.profilePhoto) {
-        setPhotoPreview(user.profilePhoto)
+      if (user.profile_photo) {
+        setPhotoPreview(user.profile_photo)
       }
     }
   }, [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    clearError()
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB")
-        return
-      }
+    if (!file) return
 
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file")
-        return
-      }
-
-      setSelectedFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+    // Validate file type first
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file")
+      return
     }
+
+    // Then validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB")
+      return
+    }
+
+    // Create preview URL
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const result = reader.result as string
+      setPhotoPreview(result)
+      setSelectedFile(file)
+    }
+    reader.onerror = () => {
+      toast.error("Failed to load image")
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
-      const updateData: ProfileUpdateData = { ...formData }
-      if (selectedFile) {
-        updateData.profilePhoto = selectedFile
+      const updateData: ProfileUpdateData = { 
+        name: formData.name,
+        full_name: formData.name,
+        phone: formData.phone,
+        phone_number: formData.phone,
+        preferred_language: formData.preferred_language as "en" | "am" | "om",
+        ...(selectedFile && { profile_photo: selectedFile })
       }
 
       await updateProfile(updateData)
       toast.success("Profile updated successfully")
       setSelectedFile(null)
-    } catch (err) {
+    } catch (err: any) {
+      console.error('Profile update error:', err)
       toast.error("Error", {
-        description: error.message || "Failed to update profile"
+        description: err?.response?.data?.message || err?.message || "Failed to update profile"
       })
     }
   }
@@ -84,104 +94,85 @@ export const ProfileEditor = () => {
   return (
     <div className="w-full max-w-2xl mx-auto p-6 card">
       <h2 className="text-2xl font-bold mb-6 text-foreground">Edit Profile</h2>
-
+      
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Profile Photo */}
+        {/* Profile Photo Upload */}
         <div className="flex flex-col items-center gap-4">
-          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+          <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-gray-200">
             {photoPreview ? (
-              <img src={photoPreview || "/placeholder.svg"} alt="Profile" className="w-full h-full object-cover" />
+              <img 
+                src={photoPreview} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <span className="text-muted-foreground">No photo</span>
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400">No photo</span>
+              </div>
             )}
           </div>
           <label className="cursor-pointer">
-            <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" disabled={isLoading} />
-            <span className="text-primary hover:underline">Change Photo</span>
+            <span className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+              {photoPreview ? 'Change Photo' : 'Upload Photo'}
+            </span>
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handlePhotoChange}
+            />
           </label>
         </div>
 
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
             Full Name
           </label>
           <input
-            id="name"
             type="text"
+            id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="input-base"
-            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+            required
           />
         </div>
 
-        {/* Email (Read-only) */}
+        {/* Phone Number */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-2">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={user?.email || ""}
-            className="input-base opacity-50 cursor-not-allowed"
-            disabled
-          />
-          <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium mb-2">
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
             Phone Number
           </label>
           <input
-            id="phone"
             type="tel"
+            id="phone"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="+1 (555) 000-0000"
-            className="input-base"
-            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
         </div>
 
         {/* Preferred Language */}
         <div>
-          <label htmlFor="language" className="block text-sm font-medium mb-2">
+          <label htmlFor="preferred_language" className="block text-sm font-medium text-gray-700 mb-1">
             Preferred Language
           </label>
           <select
-            id="language"
-            name="preferredLanguage"
-            value={formData.preferredLanguage}
+            id="preferred_language"
+            name="preferred_language"
+            value={formData.preferred_language}
             onChange={handleChange}
-            className="input-base"
-            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             <option value="en">English</option>
-            <option value="am">Amharic (አማርኛ)</option>
-            <option value="om">Afaan Oromo</option>
+            <option value="am">አማርኛ</option>
+            <option value="om">Oromiffa</option>
           </select>
         </div>
 
-        {/* Role (Read-only) */}
-        <div>
-          <label htmlFor="role" className="block text-sm font-medium mb-2">
-            Account Type
-          </label>
-          <input
-            id="role"
-            type="text"
-            value={user?.role.charAt(0).toUpperCase() + user?.role.slice(1) || ""}
-            className="input-base opacity-50 cursor-not-allowed"
-            disabled
-          />
-          <p className="text-xs text-muted-foreground mt-1">Account type cannot be changed</p>
-        </div>
 
         {/* Submit Button */}
         <button type="submit" disabled={isLoading} className="btn-primary w-full disabled:opacity-50">
