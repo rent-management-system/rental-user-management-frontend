@@ -1,7 +1,7 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ReactNode } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from 'sonner';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { isLoading } = useAuthStore();
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       {children}
-      <Toaster position="top-right" />
+      <Toaster position="top-right" richColors closeButton />
     </GoogleOAuthProvider>
   );
 }

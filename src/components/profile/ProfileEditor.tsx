@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { useProfile } from "@/hooks/useProfile"
 import { useAuth } from "@/hooks/useAuth"
 import type { ProfileUpdateData } from "@/types"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 export const ProfileEditor = () => {
   const { user } = useAuth()
@@ -72,10 +72,12 @@ export const ProfileEditor = () => {
       }
 
       await updateProfile(updateData)
-      toast.success("Profile updated successfully!")
+      toast.success("Profile updated successfully")
       setSelectedFile(null)
     } catch (err) {
-      toast.error(error || "Failed to update profile")
+      toast.error("Error", {
+        description: error.message || "Failed to update profile"
+      })
     }
   }
 
