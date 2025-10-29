@@ -9,10 +9,12 @@ import { toast } from "sonner"
 export const ProfileEditor = () => {
   const { user } = useAuth()
   const { isLoading, updateProfile } = useProfile()
-  const [formData, setFormData] = useState<ProfileUpdateData>({
+  const [formData, setFormData] = useState({
     name: "",
+    full_name: "",
     phone: "",
-    preferred_language: "en",
+    phone_number: "",
+    preferred_language: "en" as const,
   })
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -21,8 +23,10 @@ export const ProfileEditor = () => {
     if (user) {
       setFormData({
         name: user.full_name || "",
+        full_name: user.full_name || "",
         phone: user.phone_number || "",
-        preferred_language: (user.preferred_language as "en" | "am" | "om") || "en",
+        phone_number: user.phone_number || "",
+        preferred_language: user.preferred_language || "en",
       })
       if (user.profile_photo) {
         setPhotoPreview(user.profile_photo)
@@ -71,12 +75,12 @@ export const ProfileEditor = () => {
     e.preventDefault()
 
     try {
-      const updateData: ProfileUpdateData = { 
+      const updateData: ProfileUpdateData = {
         name: formData.name,
-        full_name: formData.name,
+        full_name: formData.full_name,
         phone: formData.phone,
-        phone_number: formData.phone,
-        preferred_language: formData.preferred_language as "en" | "am" | "om",
+        phone_number: formData.phone_number,
+        preferred_language: formData.preferred_language,
         ...(selectedFile && { profile_photo: selectedFile })
       }
 
