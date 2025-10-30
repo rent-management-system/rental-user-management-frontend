@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
-import type { UserRole } from "@/types"
+
+type UserRole = "tenant" | "landlord" | "admin"
 
 interface ProtectedRouteProps {
   children: React.ReactNode

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useProfile } from "@/hooks/useProfile"
 import { useAuth } from "@/hooks/useAuth"
-import type { ProfileUpdateData } from "@/types"
+// Using global ProfileUpdateData type
 import { toast } from "sonner"
 
 export const ProfileEditor = () => {
@@ -101,7 +101,24 @@ export const ProfileEditor = () => {
         formDataToSend.append('profile_photo', selectedFile)
       }
 
-      await updateProfile(formDataToSend as unknown as ProfileUpdateData)
+      // Convert FormData to a plain object
+      const formDataObj: Record<string, any> = {};
+      formDataToSend.forEach((value, key) => {
+        formDataObj[key] = value;
+      });
+      
+      // Type assertion to the expected shape
+      const profileData = {
+        name: formDataObj.name || '',
+        full_name: formDataObj.full_name || '',
+        phone: formDataObj.phone || formDataObj.phone_number || '',
+        phone_number: formDataObj.phone_number || formDataObj.phone || '',
+        preferred_language: formDataObj.preferred_language || 'en',
+        preferred_currency: formDataObj.preferred_currency || 'ETB',
+        profile_photo: formDataObj.profile_photo
+      };
+      
+      await updateProfile(profileData)
       toast.success("Profile updated successfully")
       setSelectedFile(null)
     } catch (err: any) {

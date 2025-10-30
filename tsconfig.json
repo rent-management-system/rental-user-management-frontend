@@ -25,7 +25,9 @@
   },
   "include": [
     "src",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/global.d.ts",
+    "src/types.d.ts"
   ],
   "exclude": [
     "**/__tests__",

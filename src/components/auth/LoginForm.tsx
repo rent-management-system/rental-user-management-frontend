@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
-import { GoogleLogin } from "@react-oauth/google"
 import { toast } from "sonner"
 
 export function LoginForm() {
@@ -81,10 +80,6 @@ export function LoginForm() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleGoogleError = () => {
-    toast.error("Google login failed. Please try again.")
   }
 
   return (
