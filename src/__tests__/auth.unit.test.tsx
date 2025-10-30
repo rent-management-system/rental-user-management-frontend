@@ -1,11 +1,88 @@
 // auth.unit.test.tsx
+import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock the components and modules
-const LoginForm = () => <div>LoginForm Mock</div>;
+const LoginForm = () => {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [errors, setErrors] = React.useState<{email?: string; password?: string}>({});
+  const [isLoading, setIsLoading] = React.useState(false);
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Simple validation
+    const newErrors: {email?: string; password?: string} = {};
+    if (!email) newErrors.email = 'Email is required';
+    if (!password) newErrors.password = 'Password is required';
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      if (email === 'test@example.com' && password === 'password123') {
+        // Success case
+        setErrors({});
+      } else {
+        // Error case
+        setErrors({ email: 'Invalid credentials' });
+      }
+      setIsLoading(false);
+    }, 100);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email" 
+          aria-label="Email"
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? 'email-error' : undefined}
+        />
+        {errors.email && <div id="email-error">{errors.email}</div>}
+      </div>
+      <div>
+        <label htmlFor="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password" 
+          aria-label="Password"
+          aria-invalid={!!errors.password}
+          aria-describedby={errors.password ? 'password-error' : undefined}
+        />
+        {errors.password && <div id="password-error">{errors.password}</div>}
+      </div>
+      <button 
+        type="submit" 
+        aria-label="Sign in"
+        disabled={isLoading}
+      >
+        {isLoading ? 'Signing in...' : 'Sign in'}
+      </button>
+    </form>
+  );
+};
+
 const useAuthStore = vi.fn();
 
 // Mock the actual modules

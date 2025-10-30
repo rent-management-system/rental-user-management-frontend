@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import type { User, UserRole } from "@/types"
+import type { User, UserRole } from "../types.d"
 
 describe("Profile Types", () => {
   it("should create valid user object", () => {
