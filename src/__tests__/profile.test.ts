@@ -6,17 +6,18 @@ describe("Profile Types", () => {
     const user: User = {
       id: "1",
       email: "test@example.com",
-      name: "Test User",
+      name: "Test User",  // Keep the name field
+      full_name: "Test User Full Name",  // Add full_name
       phone: "+1234567890",
       role: "tenant",
-      preferredLanguage: "en",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      preferred_language: "en",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
     expect(user.email).toBe("test@example.com")
     expect(user.role).toBe("tenant")
-    expect(user.preferredLanguage).toBe("en")
+    expect(user.preferred_language).toBe("en")
   })
 
   it("should handle different user roles", () => {
@@ -26,11 +27,13 @@ describe("Profile Types", () => {
       const user: User = {
         id: "1",
         email: "test@example.com",
-        name: "Test User",
+        name: "Test User",  // Keep the name field
+        full_name: "Test User Full Name",  // Add full_name
+        phone: "+1234567890",
         role,
-        preferredLanguage: "en",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        preferred_language: "en",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
 
       expect(user.role).toBe(role)

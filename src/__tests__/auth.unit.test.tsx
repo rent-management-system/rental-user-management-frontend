@@ -1,5 +1,6 @@
+// auth.unit.test.tsx
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, renderHook } from '@testing-library/react';
+import { render, screen, renderHook } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,21 +8,29 @@ import { useAuth } from '@/hooks/useAuth';
 // Mock the auth hook
 vi.mock('@/hooks/useAuth');
 
-const mockLogin = vi.fn();
+const mockLogin = vi.fn().mockResolvedValue(undefined);
 const mockLogout = vi.fn();
+const mockSignup = vi.fn().mockResolvedValue(undefined);
+const mockGoogleAuth = vi.fn().mockResolvedValue(undefined);
+const mockClearError = vi.fn();
 
 describe('Authentication', () => {
+  const mockAuthReturn = {
+    user: null,
+    token: null,
+    isLoading: false,
+    error: null,
+    isAuthenticated: false,
+    login: mockLogin,
+    logout: mockLogout,
+    signup: mockSignup,
+    googleAuth: mockGoogleAuth,
+    clearError: mockClearError,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
-    
-    // Default mock implementation
-    (useAuth as jest.Mock).mockReturnValue({
-      user: null,
-      isLoading: false,
-      error: null,
-      login: mockLogin,
-      logout: mockLogout,
-    });
+    vi.mocked(useAuth).mockReturnValue(mockAuthReturn);
   });
 
   afterEach(() => {
@@ -62,18 +71,13 @@ describe('Authentication', () => {
       await user.click(submitButton);
       
       expect(mockLogin).toHaveBeenCalledTimes(1);
-      expect(mockLogin).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123',
-      });
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
     });
 
     it('displays loading state during submission', () => {
-      (useAuth as jest.Mock).mockReturnValue({
-        user: null,
+      vi.mocked(useAuth).mockReturnValue({
+        ...mockAuthReturn,
         isLoading: true,
-        error: null,
-        login: mockLogin,
       });
       
       render(<LoginForm />);
@@ -85,11 +89,9 @@ describe('Authentication', () => {
 
     it('displays error message when login fails', async () => {
       const errorMessage = 'Invalid credentials';
-      (useAuth as jest.Mock).mockReturnValue({
-        user: null,
-        isLoading: false,
-        error: { message: errorMessage },
-        login: mockLogin,
+      vi.mocked(useAuth).mockReturnValue({
+        ...mockAuthReturn,
+        error: errorMessage,
       });
       
       render(<LoginForm />);
@@ -104,10 +106,15 @@ describe('Authentication', () => {
       
       expect(result.current).toEqual({
         user: null,
+        token: null,
         isLoading: false,
         error: null,
+        isAuthenticated: false,
         login: expect.any(Function),
         logout: expect.any(Function),
+        signup: expect.any(Function),
+        googleAuth: expect.any(Function),
+        clearError: expect.any(Function),
       });
     });
   });
