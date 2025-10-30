@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
 
-export function LoginForm() {
+export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",

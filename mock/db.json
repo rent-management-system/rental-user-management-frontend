@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "test@example.com",
+      "full_name": "Test User",
+      "role": "tenant",
+      "is_active": true,
+      "phone_number": "+1234567890",
+      "preferred_language": "en",
+      "preferred_currency": "USD",
+      "password": "password123"
+    }
+  ],
+  "tokens": []
+}

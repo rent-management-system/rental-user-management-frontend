@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useProfile } from "@/hooks/useProfile"
 import { useAuth } from "@/hooks/useAuth"
-// Using global ProfileUpdateData type
 import { toast } from "sonner"
 
 export const ProfileEditor = () => {
@@ -83,14 +82,8 @@ export const ProfileEditor = () => {
     try {
       const formDataToSend = new FormData()
       
-      // Add all form data to FormData
-      Object.entries({
-        name: formData.name,
-        full_name: formData.full_name,
-        phone: formData.phone,
-        phone_number: formData.phone_number,
-        preferred_language: formData.preferred_language,
-      }).forEach(([key, value]) => {
+      // Append all form data to FormData
+      Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           formDataToSend.append(key, value as string)
         }
@@ -101,22 +94,33 @@ export const ProfileEditor = () => {
         formDataToSend.append('profile_photo', selectedFile)
       }
 
-      // Convert FormData to a plain object
       const formDataObj: Record<string, any> = {};
       formDataToSend.forEach((value, key) => {
         formDataObj[key] = value;
       });
       
-      // Type assertion to the expected shape
-      const profileData = {
-        name: formDataObj.name || '',
-        full_name: formDataObj.full_name || '',
-        phone: formDataObj.phone || formDataObj.phone_number || '',
-        phone_number: formDataObj.phone_number || formDataObj.phone || '',
-        preferred_language: formDataObj.preferred_language || 'en',
-        preferred_currency: formDataObj.preferred_currency || 'ETB',
-        profile_photo: formDataObj.profile_photo
+      // Create the profile data object with the correct types
+      const profileData: {
+        name: string;
+        full_name: string;
+        phone: string;
+        phone_number: string;
+        preferred_language: 'en' | 'am' | 'om';
+        preferred_currency: 'ETB' | 'USD';
+        profile_photo?: File | string;
+      } = {
+        name: String(formDataObj.name || ''),
+        full_name: String(formDataObj.full_name || ''),
+        phone: String(formDataObj.phone || formDataObj.phone_number || ''),
+        phone_number: String(formDataObj.phone_number || formDataObj.phone || ''),
+        preferred_language: (formDataObj.preferred_language as 'en' | 'am' | 'om') || 'en',
+        preferred_currency: (formDataObj.preferred_currency as 'ETB' | 'USD') || 'ETB',
       };
+
+      // Add profile photo if it exists
+      if (formDataObj.profile_photo) {
+        profileData.profile_photo = formDataObj.profile_photo;
+      }
       
       await updateProfile(profileData)
       toast.success("Profile updated successfully")

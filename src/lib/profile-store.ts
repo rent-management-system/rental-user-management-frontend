@@ -1,6 +1,38 @@
 import { create } from "zustand"
-import type { User, ProfileUpdateData } from "@/types"
 import { apiClient } from "./api-client"
+
+// Define the User interface locally since we're not importing it
+interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  name?: string;
+  phone_number?: string | null;
+  phone?: string;
+  role: 'tenant' | 'landlord' | 'admin';
+  profile_photo?: string;
+  profilePhoto?: string;
+  preferred_language: 'en' | 'am' | 'om';
+  preferredLanguage?: 'en' | 'am' | 'om';
+  preferred_currency?: 'ETB' | 'USD';
+  created_at?: string;
+  updated_at?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Define the ProfileUpdateData interface
+interface ProfileUpdateData {
+  name?: string;
+  full_name?: string;
+  phone?: string;
+  phone_number?: string | null;
+  preferred_language?: 'en' | 'am' | 'om';
+  preferredLanguage?: 'en' | 'am' | 'om';
+  profile_photo?: string | File;
+  profilePhoto?: string | File;
+  preferred_currency?: 'ETB' | 'USD';
+}
 
 interface ProfileStore {
   profile: User | null

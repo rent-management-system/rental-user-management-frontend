@@ -8,7 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "mock:server": "node mock/server.mjs",
+    "dev:with-mock": "concurrently \"npm run mock:server\" \"vite\""
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
@@ -43,7 +45,9 @@
     "@types/testing-library__jest-dom": "^5.14.9",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
+    "concurrently": "^9.2.1",
     "jsdom": "^23.0.1",
+    "json-server": "^1.0.0-beta.3",
     "msw": "^2.11.6",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
