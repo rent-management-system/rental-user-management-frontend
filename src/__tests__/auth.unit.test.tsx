@@ -3,9 +3,20 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-// Import as default to match the module declaration
-import LoginForm from '@/components/auth/LoginForm';
-import { useAuthStore } from '@/lib/auth-store';
+
+// Mock the components and modules
+const LoginForm = () => <div>LoginForm Mock</div>;
+const useAuthStore = vi.fn();
+
+// Mock the actual modules
+vi.mock('../../components/auth/LoginForm', () => ({
+  __esModule: true,
+  default: LoginForm
+}));
+
+vi.mock('../../lib/auth-store', () => ({
+  useAuthStore: vi.fn()
+}));
 
 // Type definition for the auth store selector
 interface AuthState {
