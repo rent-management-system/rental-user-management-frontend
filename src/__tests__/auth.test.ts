@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { validateEmail, validatePassword } from "@/lib/validation"
+import { validateEmail, validatePassword } from "../lib/validation"
 
 describe("Auth Validation", () => {
   describe("validateEmail", () => {
