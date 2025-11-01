@@ -2,12 +2,9 @@
 
 import { useAuth } from "@/hooks/useAuth"
 import { Link, useLocation } from "react-router-dom"
-import { useTranslation } from "react-i18next"
-
 export const Sidebar = () => {
   const { user } = useAuth()
   const location = useLocation()
-  const { t } = useTranslation()
 
   const isActive = (path: string) => location.pathname === path
 

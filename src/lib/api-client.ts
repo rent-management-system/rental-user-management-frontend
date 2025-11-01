@@ -37,7 +37,7 @@ class ApiClient {
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
             // If token refresh is in progress, wait for it to complete
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
               this.refreshSubscribers.push((token: string) => {
                 originalRequest.headers.Authorization = `Bearer ${token}`
                 resolve(this.client(originalRequest))

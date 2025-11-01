@@ -1,10 +1,6 @@
 "use client"
 
-import { useTranslation } from "react-i18next"
-
 export const AdminDashboard = () => {
-  const { t } = useTranslation()
-
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-foreground">Admin Dashboard</h2>

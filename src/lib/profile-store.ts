@@ -59,17 +59,28 @@ export const useProfileStore = create<ProfileStore>((set) => ({
     }
   },
 
-  updateProfile: async (data: ProfileUpdateData) => {
+  updateProfile: async (data: ProfileUpdateData | FormData) => {
     set({ isLoading: true, error: null })
     try {
-      const formData = new FormData()
+      // If data is already FormData, use it directly
+      // Otherwise, create a new FormData and append the fields
+      const formData = data instanceof FormData 
+        ? data 
+        : (() => {
+            const fd = new FormData()
+            if (data.name) fd.append("name", data.name)
+            if (data.full_name) fd.append("full_name", data.full_name)
+            if (data.phone) fd.append("phone", data.phone)
+            if (data.phone_number) fd.append("phone_number", data.phone_number || '')
+            if (data.preferred_language) fd.append("preferred_language", data.preferred_language)
+            if (data.preferredLanguage) fd.append("preferredLanguage", data.preferredLanguage)
+            if (data.profile_photo) fd.append("profile_photo", data.profile_photo)
+            if (data.profilePhoto && data.profilePhoto instanceof File) fd.append("profilePhoto", data.profilePhoto)
+            if (data.preferred_currency) fd.append("preferred_currency", data.preferred_currency)
+            return fd
+          })()
 
-      if (data.name) formData.append("name", data.name)
-      if (data.phone) formData.append("phone", data.phone)
-      if (data.preferredLanguage) formData.append("preferredLanguage", data.preferredLanguage)
-      if (data.profilePhoto) formData.append("profilePhoto", data.profilePhoto)
-
-      const updatedProfile = await apiClient.updateProfile(formData)
+      const updatedProfile = await apiClient.updateProfile(formData as any)
       set({ profile: updatedProfile, isLoading: false })
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to update profile"
