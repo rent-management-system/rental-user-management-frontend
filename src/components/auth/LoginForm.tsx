@@ -154,10 +154,7 @@ export default function LoginForm() {
           <img src="/logo.png" alt="tesfa.ai logo" className="w-24 h-24 mb-4" />
           <h1 className="text-3xl font-semibold text-gray-800">
           </h1>
-          <p className="mt-4 text-center text-gray-700 text-lg font-medium">
-            Where <span className="text-orange-600">Talent</span><br />
-            Meets <span className="text-orange-600">Opportunity!</span>
-          </p>
+          
         </div>
       </div>
     </div>
