@@ -163,16 +163,7 @@ export const SignupForm = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Toaster position="top-center" />
-      <header className="bg-gray-900 text-white py-4 px-6">
-        <div className="container mx-auto flex items-center">
-          <div className="flex items-center">
-            <div className="bg-white text-gray-900 font-bold text-xl px-3 py-1 rounded">Rent</div>
-          </div>
-          <div className="ml-auto">
-            <Link to="/login" className="text-white hover:text-gray-300">Log In</Link>
-          </div>
-        </div>
-      </header>
+     
 
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg border border-gray-100">
