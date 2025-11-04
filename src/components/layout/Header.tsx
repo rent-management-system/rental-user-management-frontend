@@ -64,18 +64,18 @@ export const Header = () => {
           {user && (
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">{user.name}</p>
+                <p className="text-sm font-medium text-foreground">{user.full_name}</p>
                 <p className="text-xs text-muted-foreground">{user.role}</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                 {user.profilePhoto ? (
                   <img
                     src={user.profilePhoto || "/placeholder.svg"}
-                    alt={user.name}
+                    alt={user.full_name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-sm font-medium">{user.name.charAt(0).toUpperCase()}</span>
+                  <span className="text-sm font-medium">{user.full_name.charAt(0).toUpperCase()}</span>
                 )}
               </div>
               <button
