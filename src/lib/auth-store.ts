@@ -57,11 +57,19 @@ export const useAuthStore = create<AuthStore>((set) => ({
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      const { access_token, user } = response.data
+      const { access_token } = response.data
       localStorage.setItem('access_token', access_token)
 
+      // Fetch user details after successful login
+      const userResponse = await apiClient.get('/users/me', {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+      const user = userResponse.data
+
       const userData: User = {
-        id: user.user_id || user.id,
+        id: user.id,
         email: user.email,
         full_name: user.full_name,
         role: user.role as 'admin' | 'landlord' | 'tenant',
