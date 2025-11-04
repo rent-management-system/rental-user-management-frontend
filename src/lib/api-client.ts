@@ -6,7 +6,7 @@ import axios, {
   InternalAxiosRequestConfig
 } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://rent-managment-system-user-magt.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://rent-managment-system-user-magt.onrender.com/api/v1";
 
 interface UserProfile {
   id: string;
@@ -211,7 +211,8 @@ class ApiClient {
         preferred_currency: userData.preferred_currency || 'ETB',
       });
 
-      const response = await this.post<AuthResponse>('/auth/register', {
+      // Backend README exposes user registration at /users/register
+      const response = await this.post<AuthResponse>('/users/register', {
         email: userData.email,
         password: userData.password,
         full_name: userData.full_name,

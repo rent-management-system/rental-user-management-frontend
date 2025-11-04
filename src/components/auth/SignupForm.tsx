@@ -17,7 +17,7 @@ type FormData = {
 
 export const SignupForm = () => {
   const navigate = useNavigate()
-  const { signup } = useAuthStore()
+  const { register } = useAuthStore()
   const [formData, setFormData] = useState<FormData>({
     full_name: "",
     email: "",
@@ -108,15 +108,15 @@ export const SignupForm = () => {
       });
       
       // Call signup with all required parameters
-      await signup(
-        formData.full_name,
-        formData.email,
-        formData.password,
-        formData.phone_number,
-        formData.role,
-        formData.preferred_language,
-        formData.preferred_currency
-      )
+      await register({
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.full_name,
+        phone_number: formData.phone_number,
+        role: formData.role,
+        preferred_language: formData.preferred_language,
+        preferred_currency: formData.preferred_currency,
+      })
       
       // Show success message
       toast.success('Account created successfully!', {
