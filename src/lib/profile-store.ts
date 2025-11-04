@@ -1,25 +1,15 @@
 import { create } from "zustand"
 import apiClient from "./api-client"
+import { UserProfile } from "./types"
 
-// Define the User interface locally since we're not importing it
-interface User {
-  id: string;
-  email: string;
-  full_name: string;
-  name?: string;
-  phone_number?: string | null;
-  phone?: string;
-  // expanded to match api-client roles
-  role: 'tenant' | 'landlord' | 'admin' | 'owner' | 'broker';
-  profile_photo?: string;
-  profilePhoto?: string;
-  preferred_language: 'en' | 'am' | 'om';
-  preferredLanguage?: 'en' | 'am' | 'om';
-  preferred_currency?: 'ETB' | 'USD';
-  created_at?: string;
-  updated_at?: string;
-  createdAt?: string;
-  updatedAt?: string;
+// Use shared UserProfile and extend for local conveniences
+type User = UserProfile & {
+  name?: string
+  phone?: string
+  profilePhoto?: string
+  preferredLanguage?: 'en' | 'am' | 'om'
+  createdAt?: string
+  updatedAt?: string
 }
 
 // Define the ProfileUpdateData interface

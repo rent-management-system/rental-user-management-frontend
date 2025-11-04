@@ -5,22 +5,9 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig
 } from 'axios';
+import { UserProfile } from './types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://rent-managment-system-user-magt.onrender.com/api/v1";
-
-interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string;
-  phone_number: string | null;
-  // Keep role types aligned with the rest of the frontend
-  role: 'tenant' | 'landlord' | 'admin' | 'owner' | 'broker';
-  is_active: boolean;
-  preferred_language: 'en' | 'am' | 'om';
-  preferred_currency: 'ETB' | 'USD';
-  created_at: string;
-  updated_at: string;
-}
 
 interface AuthResponse {
   access_token: string;
@@ -260,15 +247,16 @@ class ApiClient {
         userData
       );
 
-      const { user, access_token, refresh_token } = response.data;
+      // avoid unused-variable TS6133: rename to _user then return as user
+      const { user: _user, access_token, refresh_token } = response.data;
 
-      // store tokens if present
-      if (access_token) {
-        localStorage.setItem('access_token', access_token);
-        if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
-      }
+       // store tokens if present
+       if (access_token) {
+         localStorage.setItem('access_token', access_token);
+         if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
+       }
 
-      return { user, access_token, refresh_token };
+      return { user: _user, access_token, refresh_token };
     } catch (err: any) {
       console.error('apiClient.register error', {
         message: err.message,
@@ -344,7 +332,7 @@ class ApiClient {
   }
 }
 
-// Export both a named instance and default to satisfy different import styles across the repo
+// Export instance
 export const apiClient = new ApiClient();
 export default apiClient;
 
