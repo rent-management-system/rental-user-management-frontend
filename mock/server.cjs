@@ -1,14 +1,8 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const jsonServer = require('json-server');
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const path = require('path');
 
 const server = jsonServer.create();
-const router = jsonServer.router(join(__dirname, 'db.json'));
+const router = jsonServer.router(path.join(__dirname, 'db.json'));
 const middlewares = jsonServer.defaults();
 
 // Add custom routes for authentication
@@ -38,78 +32,99 @@ server.post('/api/auth/login', (req, res) => {
       }
     });
   } else {
-    res.status(401).jsonp({ error: 'Invalid credentials' });
+    res.status(401).jsonp({
+      message: 'Invalid email or password'
+    });
   }
 });
 
-// Signup endpoint
-server.post('/api/auth/signup', (req, res) => {
-  const userData = req.body;
+// Register endpoint
+server.post('/api/auth/register', (req, res) => {
+  const { email, password, full_name, phone_number, role, preferred_language, preferred_currency } = req.body;
   
   // Check if user already exists
-  const existingUser = router.db.get('users').find({ email: userData.email }).value();
+  const existingUser = router.db.get('users').find({ email }).value();
   if (existingUser) {
-    return res.status(400).jsonp({ error: 'User already exists' });
+    return res.status(400).jsonp({
+      message: 'User already exists'
+    });
   }
   
   // Create new user
   const newUser = {
     id: Date.now().toString(),
-    ...userData,
+    email,
+    password, // In a real app, you should hash the password
+    full_name,
+    phone_number,
+    role: role || 'tenant',
     is_active: true,
+    preferred_language: preferred_language || 'en',
+    preferred_currency: preferred_currency || 'USD',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
   
   router.db.get('users').push(newUser).write();
   
+  // Generate token
   const token = `mock-jwt-token-${Date.now()}`;
   router.db.get('tokens').push({ token, userId: newUser.id }).write();
   
-  // Don't return the password in the response
-  const { password, ...userWithoutPassword } = newUser;
-  
   res.status(201).jsonp({
     access_token: token,
-    user: userWithoutPassword
+    user: {
+      id: newUser.id,
+      email: newUser.email,
+      full_name: newUser.full_name,
+      role: newUser.role,
+      is_active: newUser.is_active,
+      phone_number: newUser.phone_number,
+      preferred_language: newUser.preferred_language,
+      preferred_currency: newUser.preferred_currency
+    }
   });
 });
 
 // Middleware to check authentication
-const requireAuth = (req, res, next) => {
+function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).jsonp({ error: 'Unauthorized' });
+    return res.status(401).jsonp({ message: 'No token provided' });
   }
   
   const token = authHeader.split(' ')[1];
-  const tokenRecord = router.db.get('tokens').find({ token }).value();
+  const tokenData = router.db.get('tokens').find({ token }).value();
   
-  if (!tokenRecord) {
-    return res.status(401).jsonp({ error: 'Invalid token' });
+  if (!tokenData) {
+    return res.status(401).jsonp({ message: 'Invalid token' });
   }
   
-  req.userId = tokenRecord.userId;
+  req.userId = tokenData.userId;
   next();
-};
+}
 
 // Protected route example
 server.get('/api/me', requireAuth, (req, res) => {
   const user = router.db.get('users').find({ id: req.userId }).value();
   if (!user) {
-    return res.status(404).jsonp({ error: 'User not found' });
+    return res.status(404).jsonp({ message: 'User not found' });
   }
   
-  const { password, ...userWithoutPassword } = user;
-  res.jsonp(userWithoutPassword);
+  // Don't send password hash back
+  const { password, ...userData } = user;
+  res.jsonp(userData);
 });
 
-// Use default middlewares and router
+// Use default middlewares
 server.use(middlewares);
+
+// Use router
 server.use('/api', router);
 
 // Start server
 const PORT = 3001;
 server.listen(PORT, () => {
-  console.log(`Mock API Server is running on http://localhost:${PORT}`);
+  console.log(`JSON Server is running on port ${PORT}`);
 });

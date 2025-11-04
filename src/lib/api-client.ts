@@ -1,11 +1,42 @@
-import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from "axios"
+import axios, { 
+  AxiosInstance, 
+  AxiosError, 
+  AxiosRequestConfig, 
+  AxiosResponse,
+  InternalAxiosRequestConfig
+} from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://rent-managment-system-user-magt.onrender.com"
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://rent-managment-system-user-magt.onrender.com";
+
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  phone_number: string | null;
+  role: string;
+  is_active: boolean;
+  preferred_language: 'en' | 'am' | 'om';
+  preferred_currency: 'ETB' | 'USD';
+  created_at: string;
+  updated_at: string;
+}
+
+interface AuthResponse {
+  access_token: string;
+  refresh_token?: string;
+  user: UserProfile;
+}
+
+interface ApiResponse<T = any> {
+  data: T;
+  message?: string;
+  success: boolean;
+}
 
 class ApiClient {
-  private client: AxiosInstance
-  private isRefreshing = false
-  private refreshSubscribers: ((token: string) => void)[] = []
+  private client: AxiosInstance;
+  private isRefreshing = false;
+  private refreshSubscribers: ((token: string) => void)[] = [];
 
   constructor() {
     this.client = axios.create({
@@ -13,252 +44,270 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
-    })
+      withCredentials: false // Disabled for development
+    });
 
-    // Add request interceptor to include auth token
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
+    // Request interceptor
     this.client.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('access_token')
+      (config: InternalAxiosRequestConfig) => {
+        const token = localStorage.getItem('access_token');
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`
+          config.headers.Authorization = `Bearer ${token}`;
         }
-        return config
+        return config;
       },
-      (error) => Promise.reject(error)
-    )
+      (error: AxiosError) => {
+        return Promise.reject(error);
+      }
+    );
 
-    // Add response interceptor for token refresh and error handling
+    // Response interceptor
     this.client.interceptors.response.use(
-      (response) => response,
+      (response: AxiosResponse) => response,
       async (error: AxiosError) => {
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
         
         // If error is 401 and we haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
-            // If token refresh is in progress, wait for it to complete
+            // If we're already refreshing, wait for the new token
             return new Promise((resolve) => {
               this.refreshSubscribers.push((token: string) => {
-                originalRequest.headers.Authorization = `Bearer ${token}`
-                resolve(this.client(originalRequest))
-              })
-            })
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+                resolve(this.client(originalRequest));
+              });
+            });
           }
 
-          originalRequest._retry = true
-          this.isRefreshing = true
+          originalRequest._retry = true;
+          this.isRefreshing = true;
 
           try {
-            const refreshToken = localStorage.getItem('refresh_token')
+            const refreshToken = localStorage.getItem('refresh_token');
             if (!refreshToken) {
-              this.clearAuth()
-              return Promise.reject(error)
+              throw new Error('No refresh token available');
             }
 
             // Try to refresh the token
-            const response = await axios.post(`${API_BASE_URL}/auth/refresh`, null, {
-              params: { refresh_token: refreshToken }
-            })
+            const response = await axios.post<{ access_token: string; refresh_token?: string }>(
+              `${API_BASE_URL}/auth/refresh`, 
+              { refresh_token: refreshToken }
+            );
             
-            const { access_token, refresh_token } = response.data
-            this.setAuthTokens(access_token, refresh_token)
+            const { access_token, refresh_token } = response.data;
             
-            // Update the Authorization header and retry the original request
-            originalRequest.headers.Authorization = `Bearer ${access_token}`
+            // Update the stored tokens
+            localStorage.setItem('access_token', access_token);
+            if (refresh_token) {
+              localStorage.setItem('refresh_token', refresh_token);
+            }
+
+            // Update the authorization header
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${access_token}`;
+            }
             
-            // Process all pending requests
-            this.processSubscribers(access_token)
+            // Process all pending requests with the new token
+            this.refreshSubscribers.forEach(callback => callback(access_token));
+            this.refreshSubscribers = [];
             
-            return this.client(originalRequest)
+            // Retry the original request with the new token
+            return this.client(originalRequest);
           } catch (refreshError) {
-            // If refresh fails, clear auth and redirect to login
-            this.clearAuth()
-            window.location.href = '/login'
-            return Promise.reject(refreshError)
+            // If refresh fails, clear tokens and redirect to login
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '/login';
+            return Promise.reject(refreshError);
           } finally {
-            this.isRefreshing = false
+            this.isRefreshing = false;
           }
         }
         
-        // Log error for debugging
-        if (error.response) {
-          console.error('API Error:', {
-            status: error.response.status,
-            data: error.response.data,
-            url: originalRequest.url
-          })
-        }
-        
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
-    )
+    );
   }
 
-  private setAuthTokens(accessToken: string, refreshToken?: string) {
-    localStorage.setItem('access_token', accessToken)
-    if (refreshToken) {
-      localStorage.setItem('refresh_token', refreshToken)
-    }
+  // ========== HTTP Methods ==========
+  
+  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return this.client.get<T>(url, config);
   }
 
-  private clearAuth() {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
+  async post<T = any>(
+    url: string, 
+    data?: any, 
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T>> {
+    return this.client.post<T>(url, data, config);
   }
 
-  private processSubscribers(token: string) {
-    this.refreshSubscribers.forEach(callback => callback(token))
-    this.refreshSubscribers = []
+  async put<T = any>(
+    url: string, 
+    data?: any, 
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T>> {
+    return this.client.put<T>(url, data, config);
   }
 
-  async login(email: string, password: string) {
-    const formData = new URLSearchParams()
-    formData.append('username', email)
-    formData.append('password', password)
+  async delete<T = any>(
+    url: string, 
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T>> {
+    return this.client.delete<T>(url, config);
+  }
+
+  async patch<T = any>(
+    url: string, 
+    data?: any, 
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T>> {
+    return this.client.patch<T>(url, data, config);
+  }
+
+  // ========== Auth Methods ==========
+  
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const formData = new FormData();
+    formData.append('username', email);
+    formData.append('password', password);
     
-    try {
-      const response = await this.client.post('/auth/login', formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      })
-      
-      const { access_token, refresh_token } = response.data
-      this.setAuthTokens(access_token, refresh_token)
-      
-      // Get user data
-      const userResponse = await this.client.get('/users/me')
-      return { user: userResponse.data, token: access_token }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
+    const response = await this.post<AuthResponse>('/auth/login', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    const { access_token, refresh_token, user } = response.data;
+    
+    localStorage.setItem('access_token', access_token);
+    if (refresh_token) {
+      localStorage.setItem('refresh_token', refresh_token);
     }
+    
+    return { access_token, refresh_token, user };
   }
 
-  async signup(
-    full_name: string, 
-    email: string, 
-    password: string, 
-    phone_number: string, 
-    role: string,
-    preferred_language: string = 'en',
-    preferred_currency: string = 'ETB'
-  ) {
+  async register(userData: {
+    email: string;
+    password: string;
+    full_name: string;
+    phone_number: string;
+    role?: 'tenant' | 'landlord' | 'admin';
+    preferred_language?: 'en' | 'am' | 'om';
+    preferred_currency?: 'ETB' | 'USD';
+  }): Promise<AuthResponse> {
     try {
-      const requestData = {
-        full_name,
-        email,
-        password,
-        phone_number: phone_number || undefined,
-        role: role.toLowerCase(),
-        preferred_language,
-        preferred_currency
-      };
+      console.log('Attempting to register with data:', {
+        ...userData,
+        password: '***', // Don't log the actual password
+        role: userData.role || 'tenant',
+        preferred_language: userData.preferred_language || 'en',
+        preferred_currency: userData.preferred_currency || 'ETB',
+      });
+
+      const response = await this.post<AuthResponse>('/auth/register', {
+        email: userData.email,
+        password: userData.password,
+        full_name: userData.full_name,
+        phone_number: userData.phone_number,
+        role: userData.role || 'tenant',
+        preferred_language: userData.preferred_language || 'en',
+        preferred_currency: userData.preferred_currency || 'ETB',
+      });
       
-      console.log('Sending signup request with data:', JSON.stringify(requestData, null, 2));
+      console.log('Registration successful, response:', response.data);
       
-      const response = await this.client.post('/users/register', requestData);
+      const { access_token, refresh_token, user } = response.data;
       
-      console.log('Signup successful, response:', response.data);
+      if (access_token) {
+        localStorage.setItem('access_token', access_token);
+        if (refresh_token) {
+          localStorage.setItem('refresh_token', refresh_token);
+        }
+      }
       
-      // Auto-login after successful signup
-      return this.login(email, password);
+      return response.data;
     } catch (error: any) {
-      console.error('Signup error details:', {
+      console.error('Registration error:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        headers: error.response?.headers,
+        statusText: error.response?.statusText,
         config: {
           url: error.config?.url,
           method: error.config?.method,
+          headers: error.config?.headers,
           data: error.config?.data,
-          headers: error.config?.headers
-        }
-      });
-      console.error('Signup error:', error);
-      
-      // Handle 422 validation errors
-      if (error.response?.status === 422 && error.response?.data?.detail) {
-        // If it's an array of validation errors
-        if (Array.isArray(error.response.data.detail)) {
-          const errorMessages = error.response.data.detail.map((err: any) => 
-            `${err.loc ? err.loc[err.loc.length - 1] + ': ' : ''}${err.msg}`
-          );
-          throw new Error(errorMessages.join('\n'));
-        }
-        // If it's a single error message
-        throw new Error(error.response.data.detail);
-      }
-      
-      // Handle other types of errors
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.detail || 
-                          error.message || 
-                          'Signup failed. Please try again.';
-      
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
-    }
-  }
-
-  async googleAuth(token: string) {
-    try {
-      // First try the standard OAuth2 token endpoint
-      const formData = new URLSearchParams()
-      formData.append('grant_type', 'google')
-      formData.append('token', token)
-      
-      const response = await this.client.post('/auth/login', formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
         },
-      })
-      
-      const { access_token, refresh_token } = response.data
-      this.setAuthTokens(access_token, refresh_token)
-      
-      // Get user data
-      const userResponse = await this.client.get('/users/me')
-      return { user: userResponse.data, token: access_token }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Google authentication failed.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
+      });
+      throw error;
     }
   }
 
-  async forgotPassword(email: string) {
+  async logout(): Promise<void> {
     try {
-      // Note: This endpoint might need to be adjusted based on your backend
-      await this.client.post('/auth/forgot-password', { email })
-      return { success: true, message: 'Password reset email sent' }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to send password reset email.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
+      await this.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
     }
   }
 
-  async resetPassword(token: string, newPassword: string) {
-    try {
-      // Note: This endpoint might need to be adjusted based on your backend
-      await this.client.post('/auth/reset-password', {
-        token,
-        new_password: newPassword
-      })
-      return { success: true, message: 'Password has been reset successfully' }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to reset password.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
-    }
+  async getCurrentUser(): Promise<UserProfile> {
+    const response = await this.get<{ data: UserProfile }>('/users/me');
+    return response.data.data;
   }
 
-  async getProfile() {
-    try {
-      const response = await this.client.get('/users/me')
-      return response.data
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to fetch user profile.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
+  async googleAuth(token: string): Promise<AuthResponse> {
+    const response = await this.post<AuthResponse>('/auth/google', { token });
+    const { access_token, refresh_token, user } = response.data;
+    
+    if (access_token) {
+      localStorage.setItem('access_token', access_token);
+      if (refresh_token) {
+        localStorage.setItem('refresh_token', refresh_token);
+      }
     }
+    
+    return { access_token, refresh_token, user };
+  }
+
+  // ========== Password Management ==========
+  
+  async forgotPassword(email: string): Promise<ApiResponse> {
+    const response = await this.post<ApiResponse>('/auth/forgot-password', { email });
+    return response.data;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<ApiResponse> {
+    const response = await this.post<ApiResponse>('/auth/reset-password', {
+      token,
+      new_password: newPassword
+    });
+    return response.data;
+  }
+
+  async changePassword(oldPassword: string, newPassword: string): Promise<ApiResponse> {
+    const response = await this.post<ApiResponse>('/auth/change-password', {
+      current_password: oldPassword,
+      new_password: newPassword
+    });
+    return response.data;
+  }
+
+  // ========== Profile Management ==========
+  
+  async getProfile(): Promise<UserProfile> {
+    const response = await this.get<{ data: UserProfile }>('/users/me');
+    return response.data.data;
   }
 
   async updateProfile(profileData: {
@@ -266,27 +315,9 @@ class ApiClient {
     phone_number?: string | null;
     preferred_language?: 'en' | 'am' | 'om';
     preferred_currency?: 'ETB' | 'USD';
-  }) {
-    try {
-      const response = await this.client.put('/users/me', profileData)
-      return response.data
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to update profile.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
-    }
-  }
-
-  async changePassword(oldPassword: string, newPassword: string) {
-    try {
-      await this.client.post('/auth/change-password', {
-        old_password: oldPassword,
-        new_password: newPassword
-      })
-      return { success: true, message: 'Password changed successfully' }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Failed to change password.'
-      throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage)
-    }
+  }): Promise<UserProfile> {
+    const response = await this.put<{ data: UserProfile }>('/users/me', profileData);
+    return response.data.data;
   }
 }
 

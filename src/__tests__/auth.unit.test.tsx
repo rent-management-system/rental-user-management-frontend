@@ -1,47 +1,44 @@
 // auth.unit.test.tsx
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { useAuthStore } from '../lib/auth-store';
 
-// Mock the components and modules
+// Mock the auth store
+vi.mock('../lib/auth-store');
+
+// Mock the LoginForm component
 const LoginForm = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [errors, setErrors] = React.useState<{email?: string; password?: string}>({});
+  const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const login = useAuthStore((state) => state.login);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
-    // Simple validation
-    const newErrors: {email?: string; password?: string} = {};
-    if (!email) newErrors.email = 'Email is required';
-    if (!password) newErrors.password = 'Password is required';
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (!email || !password) {
+      setError('Please fill in all fields');
       return;
     }
     
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (email === 'test@example.com' && password === 'password123') {
-        // Success case
-        setErrors({});
-      } else {
-        // Error case
-        setErrors({ email: 'Invalid credentials' });
-      }
+    try {
+      setIsLoading(true);
+      await login(email, password);
+    } catch (err) {
+      setError('Login failed');
+    } finally {
       setIsLoading(false);
-    }, 100);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} data-testid="login-form">
+      {error && <div className="error">{error}</div>}
       <div>
         <label htmlFor="email">Email</label>
         <input 
@@ -50,16 +47,93 @@ const LoginForm = () => {
           name="email" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email" 
+          data-testid="email-input"
+          placeholder="Enter your email"
           aria-label="Email"
-          aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? 'email-error' : undefined}
         />
-        {errors.email && <div id="email-error">{errors.email}</div>}
       </div>
       <div>
         <label htmlFor="password">Password</label>
         <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          data-testid="password-input"
+          placeholder="Enter your password"
+          aria-label="Password"
+        />
+      </div>
+      <button type="submit" disabled={isLoading} data-testid="submit-button">
+        {isLoading ? 'Signing in...' : 'Sign in'}
+      </button>
+    </form>
+  );
+};
+
+describe('LoginForm', () => {
+  const mockLogin = vi.fn();
+  
+  beforeEach(() => {
+    vi.mocked(useAuthStore).mockImplementation((selector) => {
+      return selector({
+        user: null,
+        token: null,
+        isLoading: false,
+        login: mockLogin,
+        logout: vi.fn(),
+        signup: vi.fn(),
+        error: null,
+      });
+    });
+  });
+  
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders the login form', () => {
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
+    
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
+
+  it('shows validation error when fields are empty', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
+    
+    await user.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    expect(screen.getByText(/please fill in all fields/i)).toBeInTheDocument();
+    expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  it('calls login with the correct credentials', async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
+    
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+  });
+});
           type="password" 
           id="password" 
           name="password" 
