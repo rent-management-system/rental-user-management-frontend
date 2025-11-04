@@ -130,22 +130,21 @@ export const SignupForm = () => {
       }, 2000)
     } catch (error: any) {
       console.error('Signup error:', error)
-      
-      // If the error message contains newlines, it's a multi-line error
-      if (error.message) {
-        if (error.message.includes('\n')) {
-          error.message.split('\n').forEach((msg: string) => {
-            toast.error('Error', {
-              description: msg.trim(),
-              duration: 5000,
-            })
-          })
-        } else {
+
+      // Show backend or JS error messages. Support string, newline-separated strings, or array messages.
+      const backendMessage = error?.response?.data?.message || error?.message
+      if (typeof backendMessage === 'string') {
+        toast.error('Error', {
+          description: backendMessage,
+          duration: 5000,
+        })
+      } else if (Array.isArray(backendMessage)) {
+        backendMessage.forEach((msg) => {
           toast.error('Error', {
-            description: error.message || 'Signup failed. Please check your details and try again.',
+            description: msg,
             duration: 5000,
           })
-        }
+        })
       }
       
       // Handle field-specific errors if they exist in the error object
@@ -298,7 +297,6 @@ export const SignupForm = () => {
                   >
                     <option value="ETB">ETB</option>
                     <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
                   </select>
                 </div>
               </div>
@@ -316,7 +314,7 @@ export const SignupForm = () => {
                 >
                   <option value="en">English</option>
                   <option value="am">አማርኛ</option>
-                  <option value="or">Oromiffa</option>
+                  <option value="om">Oromiffa</option>
                 </select>
               </div>
             </div>

@@ -170,27 +170,76 @@ class ApiClient {
     return this.client.patch<T>(url, data, config);
   }
 
+  // Small helper to decode a JWT payload (no external dependency)
+  private decodeJwtPayload(token: string): Record<string, any> | null {
+    try {
+      const parts = token.split('.')
+      if (parts.length < 2) return null
+      const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+      // atob is available in browser env
+      const json = decodeURIComponent(
+        Array.prototype.map
+          .call(atob(payload), (c: string) => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+          })
+          .join('')
+      )
+      return JSON.parse(json)
+    } catch {
+      return null
+    }
+  }
+
   // ========== Auth Methods ==========
   
   async login(email: string, password: string): Promise<AuthResponse> {
-    const formData = new FormData();
-    formData.append('username', email);
-    formData.append('password', password);
-    
-    const response = await this.post<AuthResponse>('/auth/login', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    const { access_token, refresh_token, user } = response.data;
-    
-    localStorage.setItem('access_token', access_token);
-    if (refresh_token) {
-      localStorage.setItem('refresh_token', refresh_token);
+    try {
+      const formData = new FormData()
+      formData.append('username', email)
+      formData.append('password', password)
+
+      const response = await this.post<AuthResponse>('/auth/login', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+
+      const { access_token, refresh_token, user } = response.data
+      // store tokens if present
+      if (access_token) {
+        localStorage.setItem('access_token', access_token)
+        if (refresh_token) localStorage.setItem('refresh_token', refresh_token)
+      }
+
+      // If backend did not include user object, try to decode JWT claims
+      let resolvedUser = user
+      if (!resolvedUser && access_token) {
+        const claims = this.decodeJwtPayload(access_token)
+        if (claims) {
+          resolvedUser = {
+            id: claims.user_id ?? claims.sub ?? claims.id ?? '',
+            email: claims.email ?? email,
+            full_name: claims.full_name ?? (claims.name ?? ''),
+            phone_number: claims.phone_number ?? null,
+            role: claims.role ?? claims.roles ?? '',
+            is_active: claims.is_active ?? true,
+            preferred_language: (claims.preferred_language ?? 'en') as 'en' | 'am' | 'om',
+            preferred_currency: (claims.preferred_currency ?? 'ETB') as 'ETB' | 'USD',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        }
+      }
+
+      return { access_token, refresh_token, user: resolvedUser } as AuthResponse
+    } catch (err: any) {
+      console.error('apiClient.login error', {
+        message: err.message,
+        status: err.response?.status,
+        body: err.response?.data,
+        headers: err.response?.headers,
+        config: err.config,
+      })
+      throw err
     }
-    
-    return { access_token, refresh_token, user };
   }
 
   async register(userData: {
@@ -201,7 +250,7 @@ class ApiClient {
     role?: 'tenant' | 'landlord' | 'admin';
     preferred_language?: 'en' | 'am' | 'om';
     preferred_currency?: 'ETB' | 'USD';
-  }): Promise<AuthResponse> {
+  }): Promise<{ user: UserProfile; access_token?: string; refresh_token?: string }> {
     try {
       console.log('Attempting to register with data:', {
         ...userData,
@@ -211,8 +260,7 @@ class ApiClient {
         preferred_currency: userData.preferred_currency || 'ETB',
       });
 
-      // Backend README exposes user registration at /users/register
-      const response = await this.post<AuthResponse>('/users/register', {
+      const response = await this.post<any>('/users/register', {
         email: userData.email,
         password: userData.password,
         full_name: userData.full_name,
@@ -221,31 +269,24 @@ class ApiClient {
         preferred_language: userData.preferred_language || 'en',
         preferred_currency: userData.preferred_currency || 'ETB',
       });
-      
-      console.log('Registration successful, response:', response.data);
-      
-      const { access_token, refresh_token, user } = response.data;
-      
-      if (access_token) {
-        localStorage.setItem('access_token', access_token);
-        if (refresh_token) {
-          localStorage.setItem('refresh_token', refresh_token);
-        }
+
+      const payload = response.data;
+
+      // If backend returned tokens + user
+      if (payload.access_token) {
+        localStorage.setItem('access_token', payload.access_token);
+        if (payload.refresh_token) localStorage.setItem('refresh_token', payload.refresh_token);
+        return { user: payload.user, access_token: payload.access_token, refresh_token: payload.refresh_token };
       }
-      
-      return response.data;
+
+      // If backend returned a user object directly or wrapped in { data: user }:
+      const user = payload.user ?? payload.data ?? payload;
+      return { user };
     } catch (error: any) {
       console.error('Registration error:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        statusText: error.response?.statusText,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          data: error.config?.data,
-        },
       });
       throw error;
     }
@@ -323,3 +364,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient()
+
