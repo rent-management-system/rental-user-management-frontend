@@ -43,9 +43,9 @@ export const useProfileStore = create<ProfileStore>((set) => ({
   fetchProfile: async () => {
     set({ isLoading: true, error: null })
     try {
-      // backend client exposes getMe()
-      const profile = await apiClient.getMe()
-      set({ profile, isLoading: false })
+      // use axios get and read response.data
+      const res = await apiClient.get('/v1/profile/me')
+      set({ profile: res.data, isLoading: false })
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to fetch profile"
       set({ error: errorMessage, isLoading: false })
@@ -55,8 +55,6 @@ export const useProfileStore = create<ProfileStore>((set) => ({
   updateProfile: async (data: ProfileUpdateData | FormData) => {
     set({ isLoading: true, error: null })
     try {
-      // If data is already FormData, use it directly
-      // Otherwise, create a new FormData and append the fields
       const formData = data instanceof FormData 
         ? data 
         : (() => {
@@ -67,14 +65,17 @@ export const useProfileStore = create<ProfileStore>((set) => ({
             if (data.phone_number) fd.append("phone_number", data.phone_number || '')
             if (data.preferred_language) fd.append("preferred_language", data.preferred_language)
             if (data.preferredLanguage) fd.append("preferredLanguage", data.preferredLanguage)
-            if (data.profile_photo) fd.append("profile_photo", data.profile_photo)
+            if (data.profile_photo && typeof data.profile_photo !== 'string') fd.append("profile_photo", data.profile_photo as File)
             if (data.profilePhoto && data.profilePhoto instanceof File) fd.append("profilePhoto", data.profilePhoto)
             if (data.preferred_currency) fd.append("preferred_currency", data.preferred_currency)
             return fd
           })()
 
-      const updatedProfile = await apiClient.updateProfile(formData as any)
-      set({ profile: updatedProfile, isLoading: false })
+      // use PUT (or POST depending on backend). Set multipart header so axios sends boundary correctly.
+      const res = await apiClient.put('/v1/profile', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      set({ profile: res.data, isLoading: false })
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to update profile"
       set({ error: errorMessage, isLoading: false })

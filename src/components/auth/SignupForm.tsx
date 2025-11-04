@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
 import { Toaster } from "sonner"
+import { apiClient } from '@/lib/api-client';
 
 type FormData = {
   full_name: string
@@ -108,7 +109,7 @@ export const SignupForm = () => {
       });
       
       // Call signup with all required parameters
-      await register({
+      const result = await register({
         email: formData.email,
         password: formData.password,
         full_name: formData.full_name,
@@ -117,6 +118,8 @@ export const SignupForm = () => {
         preferred_language: formData.preferred_language,
         preferred_currency: formData.preferred_currency,
       })
+
+      console.log('register result:', result)
       
       // Show success message
       toast.success('Account created successfully!', {

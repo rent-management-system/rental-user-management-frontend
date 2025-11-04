@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import apiClient from './api-client'
+import { apiClient } from '@/lib/api-client'
 
+// ---------- Types ----------
 export interface User {
   id: string
   email: string
@@ -20,7 +21,7 @@ interface AuthActions {
     userData: Omit<User, 'id' | 'is_active' | 'created_at' | 'updated_at'> & {
       password: string
     }
-  ) => Promise<void>
+  ) => Promise<any>
   logout: () => void
   refreshToken: () => Promise<string>
   updateUser: (userData: Partial<User>) => void
@@ -36,13 +37,14 @@ interface AuthState {
 
 export type AuthStore = AuthState & AuthActions
 
+// ---------- Zustand Store ----------
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   token: localStorage.getItem('access_token'),
   isLoading: false,
   error: null,
 
-  // ✅ LOGIN implementation
+  // ✅ LOGIN
   login: async (email: string, password: string): Promise<User> => {
     set({ isLoading: true, error: null })
     try {
@@ -50,6 +52,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       formData.append('username', email)
       formData.append('password', password)
 
+      // Backend login endpoint: /api/v1/auth/login
       const response = await apiClient.post('/auth/login', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
@@ -73,26 +76,83 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || 'Login failed'
       set({
-        error: Array.isArray(errorMessage)
-          ? errorMessage[0]
-          : errorMessage,
+        error: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
         isLoading: false,
       })
       throw error
     }
   },
 
-  // ✅ TEMP stubs (prevent TypeScript errors)
-  register: async () => {},
+  // ✅ REGISTER
+  register: async (payload) => {
+    set({ isLoading: true, error: null })
+    try {
+      const {
+        email,
+        password,
+        full_name,
+        phone_number,
+        role,
+        preferred_language,
+        preferred_currency,
+      } = payload as any
+
+      const body = {
+        email,
+        password,
+        full_name,
+        ...(phone_number ? { phone_number } : {}),
+        ...(role ? { role } : {}),
+        ...(preferred_language ? { preferred_language } : {}),
+        ...(preferred_currency ? { preferred_currency } : {}),
+      }
+
+      // ✅ Correct path: no /v1 prefix, since apiClient already has /api/v1 base
+      const res = await apiClient.post('/users/register', body, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      set({ isLoading: false })
+      return res.data
+    } catch (err: any) {
+      // Detailed debug logs for backend errors
+      console.error('register error data:', err?.response?.data)
+      console.error('register error status:', err?.response?.status)
+      console.error('register axios message:', err?.message)
+
+      const serverPayload = err?.response?.data
+      const message =
+        serverPayload?.detail ||
+        serverPayload?.message ||
+        (typeof serverPayload === 'string' ? serverPayload : null) ||
+        err?.message ||
+        'Registration failed'
+
+      set({
+        isLoading: false,
+        error: Array.isArray(message) ? message[0] : message,
+      })
+      throw err
+    }
+  },
+
+  // ✅ LOGOUT
   logout: () => {
     localStorage.removeItem('access_token')
     set({ user: null, token: null })
   },
+
+  // ✅ REFRESH TOKEN
   refreshToken: async () => {
     return localStorage.getItem('access_token') || ''
   },
-  updateUser: (userData) => set((state) => ({
-    user: state.user ? { ...state.user, ...userData } : null,
-  })),
+
+  // ✅ UPDATE USER LOCALLY
+  updateUser: (userData) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...userData } : null,
+    })),
+
+  // ✅ CLEAR ERROR STATE
   clearError: () => set({ error: null }),
 }))
