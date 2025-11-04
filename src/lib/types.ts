@@ -1,4 +1,3 @@
-// ...new file...
 export type Role = 'tenant' | 'landlord' | 'admin' | 'owner' | 'broker'
 
 export interface UserProfile {
