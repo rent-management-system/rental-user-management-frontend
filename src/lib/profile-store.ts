@@ -9,7 +9,8 @@ interface User {
   name?: string;
   phone_number?: string | null;
   phone?: string;
-  role: 'tenant' | 'landlord' | 'admin';
+  // expanded to match api-client roles
+  role: 'tenant' | 'landlord' | 'admin' | 'owner' | 'broker';
   profile_photo?: string;
   profilePhoto?: string;
   preferred_language: 'en' | 'am' | 'om';
@@ -38,8 +39,9 @@ interface ProfileStore {
   profile: User | null
   isLoading: boolean
   error: string | null
+  // allow passing FormData as well
   fetchProfile: () => Promise<void>
-  updateProfile: (data: ProfileUpdateData) => Promise<void>
+  updateProfile: (data: ProfileUpdateData | FormData) => Promise<void>
   clearError: () => void
 }
 
@@ -51,7 +53,8 @@ export const useProfileStore = create<ProfileStore>((set) => ({
   fetchProfile: async () => {
     set({ isLoading: true, error: null })
     try {
-      const profile = await apiClient.getProfile()
+      // backend client exposes getMe()
+      const profile = await apiClient.getMe()
       set({ profile, isLoading: false })
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to fetch profile"
