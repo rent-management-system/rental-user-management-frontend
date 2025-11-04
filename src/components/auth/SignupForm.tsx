@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
 import { Toaster } from "sonner"
-import { apiClient } from '@/lib/api-client';
 
 type FormData = {
   full_name: string
