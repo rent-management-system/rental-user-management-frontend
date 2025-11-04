@@ -75,7 +75,7 @@ export const Header = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-sm font-medium">{user.full_name.charAt(0).toUpperCase()}</span>
+                  <span className="text-sm font-medium">{user.full_name ? user.full_name.charAt(0).toUpperCase() : ''}</span>
                 )}
               </div>
               <button
