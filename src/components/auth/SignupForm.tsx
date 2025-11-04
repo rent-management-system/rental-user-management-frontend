@@ -102,10 +102,7 @@ export const SignupForm = () => {
     setErrors({})
 
     try {
-      console.log('Submitting form with data:', {
-        ...formData,
-        password: '***' // Don't log the actual password
-      });
+      
       
       // Call signup with all required parameters
       const result = await register({
