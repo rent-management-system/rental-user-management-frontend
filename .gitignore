@@ -112,6 +112,5 @@ venv/
 .gitignore~
 node_modules
 .vercel
-venv/
 venv
 .env
