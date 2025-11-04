@@ -13,7 +13,8 @@ interface UserProfile {
   email: string;
   full_name: string;
   phone_number: string | null;
-  role: string;
+  // Keep role types aligned with the rest of the frontend
+  role: 'tenant' | 'landlord' | 'admin' | 'owner' | 'broker';
   is_active: boolean;
   preferred_language: 'en' | 'am' | 'om';
   preferred_currency: 'ETB' | 'USD';
@@ -202,7 +203,7 @@ class ApiClient {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      const { access_token, refresh_token, user } = response.data
+      const { access_token, refresh_token, user: _user } = response.data;
       // store tokens if present
       if (access_token) {
         localStorage.setItem('access_token', access_token)
@@ -210,7 +211,7 @@ class ApiClient {
       }
 
       // If backend did not include user object, try to decode JWT claims
-      let resolvedUser = user
+      let resolvedUser = _user
       if (!resolvedUser && access_token) {
         const claims = this.decodeJwtPayload(access_token)
         if (claims) {
@@ -254,114 +255,96 @@ class ApiClient {
     try {
       console.log('Attempting to register with data:', {
         ...userData,
-        password: '***', // Don't log the actual password
-        role: userData.role || 'tenant',
-        preferred_language: userData.preferred_language || 'en',
-        preferred_currency: userData.preferred_currency || 'ETB',
+        password: '***'
       });
+      const response = await this.post<{ user: UserProfile; access_token?: string; refresh_token?: string }>(
+        '/auth/register', 
+        userData
+      );
 
-      const response = await this.post<any>('/users/register', {
-        email: userData.email,
-        password: userData.password,
-        full_name: userData.full_name,
-        phone_number: userData.phone_number,
-        role: userData.role || 'tenant',
-        preferred_language: userData.preferred_language || 'en',
-        preferred_currency: userData.preferred_currency || 'ETB',
-      });
+      const { user, access_token, refresh_token } = response.data;
 
-      const payload = response.data;
-
-      // If backend returned tokens + user
-      if (payload.access_token) {
-        localStorage.setItem('access_token', payload.access_token);
-        if (payload.refresh_token) localStorage.setItem('refresh_token', payload.refresh_token);
-        return { user: payload.user, access_token: payload.access_token, refresh_token: payload.refresh_token };
+      // store tokens if present
+      if (access_token) {
+        localStorage.setItem('access_token', access_token);
+        if (refresh_token) localStorage.setItem('refresh_token', refresh_token);
       }
 
-      // If backend returned a user object directly or wrapped in { data: user }:
-      const user = payload.user ?? payload.data ?? payload;
-      return { user };
-    } catch (error: any) {
-      console.error('Registration error:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
+      return { user, access_token, refresh_token };
+    } catch (err: any) {
+      console.error('apiClient.register error', {
+        message: err.message,
+        status: err.response?.status,
+        body: err.response?.data,
+        headers: err.response?.headers,
+        config: err.config,
       });
-      throw error;
+      throw err;
     }
   }
 
   async logout(): Promise<void> {
     try {
-      await this.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
+      await this.client.post('/auth/logout');
+    } catch (err) {
+      console.error('apiClient.logout error', err);
     } finally {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      window.location.href = '/login';
     }
   }
 
-  async getCurrentUser(): Promise<UserProfile> {
-    const response = await this.get<{ data: UserProfile }>('/users/me');
-    return response.data.data;
-  }
-
-  async googleAuth(token: string): Promise<AuthResponse> {
-    const response = await this.post<AuthResponse>('/auth/google', { token });
-    const { access_token, refresh_token, user } = response.data;
-    
-    if (access_token) {
-      localStorage.setItem('access_token', access_token);
-      if (refresh_token) {
-        localStorage.setItem('refresh_token', refresh_token);
-      }
+  async getMe(): Promise<UserProfile> {
+    try {
+      const response = await this.client.get<UserProfile>('/users/me');
+      return response.data;
+    } catch (err) {
+      console.error('apiClient.getMe error', err);
+      throw err;
     }
-    
-    return { access_token, refresh_token, user };
   }
 
-  // ========== Password Management ==========
-  
-  async forgotPassword(email: string): Promise<ApiResponse> {
-    const response = await this.post<ApiResponse>('/auth/forgot-password', { email });
-    return response.data;
+  async updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
+    try {
+      const response = await this.client.patch<UserProfile>('/users/me', data);
+      return response.data;
+    } catch (err) {
+      console.error('apiClient.updateProfile error', err);
+      throw err;
+    }
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<ApiResponse> {
-    const response = await this.post<ApiResponse>('/auth/reset-password', {
-      token,
-      new_password: newPassword
-    });
-    return response.data;
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      await this.client.patch('/users/me/password', {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+    } catch (err) {
+      console.error('apiClient.changePassword error', err);
+      throw err;
+    }
   }
 
-  async changePassword(oldPassword: string, newPassword: string): Promise<ApiResponse> {
-    const response = await this.post<ApiResponse>('/auth/change-password', {
-      current_password: oldPassword,
-      new_password: newPassword
-    });
-    return response.data;
+  async resetPassword(email: string): Promise<void> {
+    try {
+      await this.client.post('/auth/reset-password', { email });
+    } catch (err) {
+      console.error('apiClient.resetPassword error', err);
+      throw err;
+    }
   }
 
-  // ========== Profile Management ==========
-  
-  async getProfile(): Promise<UserProfile> {
-    const response = await this.get<{ data: UserProfile }>('/users/me');
-    return response.data.data;
-  }
-
-  async updateProfile(profileData: {
-    full_name?: string;
-    phone_number?: string | null;
-    preferred_language?: 'en' | 'am' | 'om';
-    preferred_currency?: 'ETB' | 'USD';
-  }): Promise<UserProfile> {
-    const response = await this.put<{ data: UserProfile }>('/users/me', profileData);
-    return response.data.data;
+  async verifyEmail(token: string): Promise<void> {
+    try {
+      await this.client.post('/auth/verify-email', { token });
+    } catch (err) {
+      console.error('apiClient.verifyEmail error', err);
+      throw err;
+    }
   }
 }
 
-export const apiClient = new ApiClient()
+export default new ApiClient();
 
