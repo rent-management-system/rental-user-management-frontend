@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { apiClient } from "./api-client"
+import apiClient from "./api-client"
 
 // Define the User interface locally since we're not importing it
 interface User {

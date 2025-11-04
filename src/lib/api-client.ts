@@ -28,11 +28,8 @@ interface AuthResponse {
   user: UserProfile;
 }
 
-interface ApiResponse<T = any> {
-  data: T;
-  message?: string;
-  success: boolean;
-}
+// NOTE: removed unused ApiResponse interface to avoid TS6196.
+// If you need a typed API wrapper later, re-add a shared interface in a separate types file
 
 class ApiClient {
   private client: AxiosInstance;
@@ -258,7 +255,8 @@ class ApiClient {
         password: '***'
       });
       const response = await this.post<{ user: UserProfile; access_token?: string; refresh_token?: string }>(
-        '/auth/register', 
+        // backend registers users at /users/register
+        '/users/register', 
         userData
       );
 
@@ -346,5 +344,7 @@ class ApiClient {
   }
 }
 
-export default new ApiClient();
+// Export both a named instance and default to satisfy different import styles across the repo
+export const apiClient = new ApiClient();
+export default apiClient;
 
