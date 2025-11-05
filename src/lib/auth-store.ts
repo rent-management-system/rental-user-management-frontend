@@ -125,6 +125,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (err: any) {
       // Detailed debug logs for backend errors
       console.error('register error data:', err?.response?.data)
+      console.error('register error detail:', err?.response?.data?.detail) // Added this line
       console.error('register error status:', err?.response?.status)
       console.error('register axios message:', err?.message)
 
