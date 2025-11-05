@@ -80,6 +80,8 @@ export const SignupForm = () => {
 
     if (!formData.phone_number) {
       newErrors.phone_number = 'Phone number is required'
+    } else if (!/^\+251[79]\d{8}$/.test(formData.phone_number)) {
+      newErrors.phone_number = 'Phone number must be in the format +2517XXXXXXXX or +2519XXXXXXXX'
     }
 
     if (!formData.preferred_language) {
