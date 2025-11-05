@@ -63,10 +63,16 @@ export default function LoginForm() {
       }
     } catch (error: any) {
       console.error("Login error:", error)
+      let errorMessage = "Login failed. Please check your credentials and try again."
+      if (error.response && error.response.status === 401) {
+        errorMessage = "Incorrect email or password. Please try again."
+      } else if (error.message) {
+        errorMessage = error.message
+      }
       setErrors({
-        general: error.message || "Login failed. Please check your credentials and try again.",
+        general: errorMessage,
       })
-      toast.error(error.message || "Login failed. Please check your credentials and try again.")
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
