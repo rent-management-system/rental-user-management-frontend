@@ -10,7 +10,7 @@ type FormData = {
   password: string
   confirmPassword: string
   phone_number: string
-  role: 'tenant' | 'landlord' | 'admin'
+  role: 'tenant' | 'owner' | 'admin'
   preferred_language: string
   preferred_currency: string
 }
