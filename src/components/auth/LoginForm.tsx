@@ -35,9 +35,32 @@ export default function LoginForm() {
     setIsLoading(true)
     setErrors({})
     try {
-      await login(formData.email, formData.password)
+      const user = await login(formData.email, formData.password)
       toast.success("Logged in successfully")
-      navigate("/")
+
+      let redirectBaseUrl: string | undefined
+
+      switch (user.role) {
+        case 'admin':
+          redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
+          break
+        case 'landlord':
+          redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
+          break
+        case 'tenant':
+          redirectBaseUrl = import.meta.env.VITE_TENANT_MICROFRONTEND_URL
+          break
+        default:
+          redirectBaseUrl = undefined
+      }
+
+      const { token } = useAuthStore.getState()
+
+      if (redirectBaseUrl && token) {
+        window.location.href = `${redirectBaseUrl}#access_token=${token}`
+      } else {
+        navigate("/")
+      }
     } catch (error: any) {
       console.error("Login error:", error)
       setErrors({
