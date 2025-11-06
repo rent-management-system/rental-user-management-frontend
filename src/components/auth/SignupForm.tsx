@@ -281,7 +281,7 @@ export const SignupForm = () => {
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   >
                     <option value="tenant">Tenant</option>
-                    <option value="landlord">Landlord</option>
+                    <option value="owner">Landlord</option>
                   </select>
                 </div>
 
