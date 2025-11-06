@@ -45,6 +45,7 @@ export default function LoginForm() {
           redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
           break
         case 'landlord':
+        case 'owner': // Assuming 'owner' role should redirect to landlord microfrontend
           redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
           break
         case 'tenant':
