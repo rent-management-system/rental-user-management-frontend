@@ -56,6 +56,10 @@ export default function LoginForm() {
 
       const { token } = useAuthStore.getState()
 
+      console.log("User role:", user.role)
+      console.log("Redirect base URL:", redirectBaseUrl)
+      console.log("Token present:", !!token)
+
       if (redirectBaseUrl && token) {
         window.location.href = `${redirectBaseUrl}#access_token=${token}`
       } else {
