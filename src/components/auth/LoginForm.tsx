@@ -44,14 +44,14 @@ export default function LoginForm() {
 
       switch (user.role) {
         case 'admin':
-          redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
+          redirectBaseUrl = import.meta.env.vite_admin_microfrontend_url
           break
         case 'landlord':
         case 'owner': // Assuming 'owner' role should redirect to landlord microfrontend
-          redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
+          redirectBaseUrl = import.meta.env.vite_landlord_microfrontend_url
           break
         case 'tenant':
-          redirectBaseUrl = import.meta.env.VITE_TENANT_MICROFRONTEND_URL
+          redirectBaseUrl = import.meta.env.vite_tenant_microfrontend_url
           break
         default:
           redirectBaseUrl = undefined
