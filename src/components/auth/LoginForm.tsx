@@ -38,10 +38,6 @@ export default function LoginForm() {
       const user = await login(formData.email, formData.password)
       toast.success("Logged in successfully")
 
-      console.log("VITE_ADMIN_MICROFRONTEND_URL:", import.meta.env.VITE_ADMIN_MICROFRONTEND_URL)
-      console.log("VITE_LANDLORD_MICROFRONTEND_URL:", import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL)
-      console.log("VITE_TENANT_MICROFRONTEND_URL:", import.meta.env.VITE_TENANT_MICROFRONTEND_URL)
-
       let redirectBaseUrl: string | undefined
 
       switch (user.role) {
