@@ -114,6 +114,14 @@ export default function LoginForm() {
               {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
             </div>
 
+            <div className="flex items-center justify-end">
+              <div className="text-sm">
+                <Link to="/forgot-password" className="font-medium text-orange-600 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
+
             {/* Sign in button */}
             <button
               type="submit"
