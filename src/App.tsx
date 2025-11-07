@@ -1,4 +1,4 @@
-"use client"
+
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
