@@ -62,7 +62,7 @@ export default function LoginForm() {
       console.log("Token present:", !!token)
 
       if (redirectBaseUrl && token) {
-        window.location.href = `${redirectBaseUrl}/auth/callback#access_token=${token}`
+        window.location.href = `${redirectBaseUrl.trim()}/auth/callback#access_token=${token}`
       } else {
         navigate("/")
       }
