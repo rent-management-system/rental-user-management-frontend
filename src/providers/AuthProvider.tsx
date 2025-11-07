@@ -8,6 +8,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // You can get this from your environment variables
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  console.log("VITE_GOOGLE_CLIENT_ID:", googleClientId);
 
   if (isLoading) {
     return (
