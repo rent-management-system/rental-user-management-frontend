@@ -118,7 +118,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         user.role = 'landlord'
       }
 
-      // Build redirect base url from env mapping
+      // Build redirect base url from env map
       let redirectBaseUrl = ''
       switch (user.role) {
         case 'admin':
