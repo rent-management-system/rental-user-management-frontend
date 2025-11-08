@@ -138,8 +138,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
         throw new Error(`Redirect URL not configured for role: ${user.role}`)
       }
 
-      // sanitize base URL and token, use query param to match AuthCallback parsing
-      const cleanBase = redirectBaseUrl.trim().replace(/\/+$/,'') // remove trailing slash(es)
+      // sanitize base URL and token, use query param to match AuthCallback parsi
+      const cleanBase = redirectBaseUrl.trim().replace(/\/+$/,'') // remove trail slash(es)
       const encodedToken = encodeURIComponent(access_token)
       const redirectUrl = `${cleanBase}/auth/callback?token=${encodedToken}`
 
