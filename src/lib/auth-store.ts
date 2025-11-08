@@ -58,6 +58,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const userResponse = await apiClient.get('/users/me');
       const user = userResponse.data;
 
+      if (user.role === 'owner') {
+        user.role = 'landlord'
+      }
+
       const userData: User = {
         id: user.id,
         email: user.email,
@@ -110,6 +114,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       // Fetch user details to determine role for redirection
       const userResponse = await apiClient.get('/users/me')
       const user = userResponse.data
+
+      if (user.role === 'owner') {
+        user.role = 'landlord'
+      }
 
       // Build redirect base url from env mapping
       let redirectBaseUrl = ''
