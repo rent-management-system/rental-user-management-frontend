@@ -44,7 +44,7 @@ export const useProfileStore = create<ProfileStore>((set) => ({
     set({ isLoading: true, error: null })
     try {
       // use axios get and read response.data
-      const res = await apiClient.get('/v1/profile/me')
+      const res = await apiClient.get('/profile/me')
       set({ profile: res.data, isLoading: false })
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to fetch profile"
@@ -72,7 +72,7 @@ export const useProfileStore = create<ProfileStore>((set) => ({
           })()
 
       // use PUT (or POST depending on backend). Set multipart header so axios sends boundary correctly.
-      const res = await apiClient.put('/v1/profile', formData, {
+      const res = await apiClient.put('/profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       set({ profile: res.data, isLoading: false })

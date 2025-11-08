@@ -10,6 +10,7 @@ import { Sidebar } from "@/components/layout/Sidebar"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import LoginForm from "@/components/auth/LoginForm"
 import { SignupForm } from "@/components/auth/SignupForm"
+import { AuthCallback } from "@/components/auth/AuthCallback"
 import { Dashboard } from "@/pages/Dashboard"
 import { ProfileEditor } from "@/components/profile/ProfileEditor"
 import { ProfileView } from "@/components/profile/ProfileView"
@@ -27,6 +28,7 @@ export default function App() {
             {/* Public Routes */}
             <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginForm />} />
             <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignupForm />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Protected Routes */}
             <Route
