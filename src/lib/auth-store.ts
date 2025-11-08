@@ -91,7 +91,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  // Single clear login implementation:
+ 
   login: async (email: string, password: string): Promise<User> => {
     set({ isLoading: true, error: null })
     try {
@@ -99,7 +99,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
       formData.append('username', email)
       formData.append('password', password)
 
-      // Backend login endpoint: /auth/login
       const response = await apiClient.post('/auth/login', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
@@ -107,11 +106,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const { access_token } = response.data
       if (!access_token) throw new Error('No access_token returned from login');
 
-      // Persist token locally so callback or subsequent requests can pick it up
+      
       localStorage.setItem('access_token', access_token)
       apiClient.defaults.headers.common.Authorization = `Bearer ${access_token}`
 
-      // Fetch user details to determine role for redirection
+      
       const userResponse = await apiClient.get('/users/me')
       const user = userResponse.data
 
