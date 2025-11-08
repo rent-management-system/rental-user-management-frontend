@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import LoginForm from "@/components/auth/LoginForm"
 import { SignupForm } from "@/components/auth/SignupForm"
 import ForgotPassword from "@/components/auth/ForgotPassword"
+import { AuthCallback } from "@/components/auth/AuthCallback"
 import { Dashboard } from "@/pages/Dashboard"
 import { ProfileEditor } from "@/components/profile/ProfileEditor"
 import { ProfileView } from "@/components/profile/ProfileView"
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginForm />} />
             <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignupForm />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Protected Routes */}
             <Route
