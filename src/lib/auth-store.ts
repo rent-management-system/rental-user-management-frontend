@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { apiClient } from '@/lib/api-client'
+import apiClient from '@/lib/api-client'
 
 // ---------- Types ----------
 export interface User {
@@ -49,12 +49,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setTokenAndFetchUser: async (token: string): Promise<User> => {
     set({ isLoading: true, error: null });
     try {
+      // persist token
       localStorage.setItem('access_token', token);
-      const userResponse = await apiClient.get('/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // set default header on apiClient so subsequent requests use it
+      apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+      // fetch user
+      const userResponse = await apiClient.get('/users/me');
       const user = userResponse.data;
 
       const userData: User = {
@@ -71,7 +72,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ user: userData, token, isLoading: false });
       return userData;
     } catch (error: any) {
+      // cleanup on failure
       localStorage.removeItem('access_token');
+      delete apiClient.defaults.headers.common.Authorization;
+
       const errorMessage = error.response?.data?.detail || 'Failed to fetch user details with token.';
       set({
         error: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
@@ -83,7 +87,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
 
-  // ✅ LOGIN
+  // Single clear login implementation:
   login: async (email: string, password: string): Promise<User> => {
     set({ isLoading: true, error: null })
     try {
@@ -91,84 +95,35 @@ export const useAuthStore = create<AuthStore>((set) => ({
       formData.append('username', email)
       formData.append('password', password)
 
-      // Backend login endpoint: /api/v1/auth/login
+      // Backend login endpoint: /auth/login
       const response = await apiClient.post('/auth/login', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
       const { access_token } = response.data
+      if (!access_token) throw new Error('No access_token returned from login');
+
+      // Persist token locally so callback or subsequent requests can pick it up
       localStorage.setItem('access_token', access_token)
-
-      // Fetch user details after successful login
-      const userResponse = await apiClient.get('/users/me', {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      })
-      const user = userResponse.data
-
-      const userData: User = {
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        role: user.role as 'admin' | 'landlord' | 'tenant',
-        is_active: user.is_active,
-        phone_number: user.phone_number,
-        preferred_language: user.preferred_language,
-        preferred_currency: user.preferred_currency,
-      }
-
-      set({ user: userData, token, isLoading: false });
-      return userData;
-    } catch (error: any) {
-      localStorage.removeItem('access_token');
-      const errorMessage = error.response?.data?.detail || 'Failed to fetch user details with token.';
-      set({
-        error: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
-        isLoading: false,
-        user: null,
-        token: null,
-      });
-      throw error;
-    }
-  },
-
-  // ✅ LOGIN
-  login: async (email: string, password: string): Promise<User> => {
-    set({ isLoading: true, error: null })
-    try {
-      const formData = new FormData()
-      formData.append('username', email)
-      formData.append('password', password)
-
-      // Backend login endpoint: /api/v1/auth/login
-      const response = await apiClient.post('/auth/login', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-
-      const { access_token } = response.data
+      apiClient.defaults.headers.common.Authorization = `Bearer ${access_token}`
 
       // Fetch user details to determine role for redirection
-      const userResponse = await apiClient.get('/users/me', {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      })
+      const userResponse = await apiClient.get('/users/me')
       const user = userResponse.data
 
+      // Build redirect base url from env mapping
       let redirectBaseUrl = ''
       switch (user.role) {
         case 'admin':
-          redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
+          redirectBaseUrl = (import.meta.env.VITE_ADMIN_MICROFRONTEND_URL as string) || ''
           break
         case 'landlord':
-          redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
+          redirectBaseUrl = (import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL as string) || ''
           break
         case 'tenant':
-          redirectBaseUrl = import.meta.env.VITE_TENANT_MICROFRONTEND_URL
+          redirectBaseUrl = (import.meta.env.VITE_TENANT_MICROFRONTEND_URL as string) || ''
           break
         default:
-          // Fallback or error handling for unknown roles
           throw new Error('Unknown user role for redirection.')
       }
 
@@ -176,16 +131,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
         throw new Error(`Redirect URL not configured for role: ${user.role}`)
       }
 
-      // Construct the full redirect URL
-      const redirectUrl = `${redirectBaseUrl}/auth/callback?token=${access_token}`
+      // sanitize base URL and token, use query param to match AuthCallback parsing
+      const cleanBase = redirectBaseUrl.trim().replace(/\/+$/,'') // remove trailing slash(es)
+      const encodedToken = encodeURIComponent(access_token)
+      const redirectUrl = `${cleanBase}/auth/callback?token=${encodedToken}`
 
-      // Perform hard redirect
+      // Hard redirect user to role frontend callback (callback will fetch user and finalize)
       window.location.href = redirectUrl
 
-      // This part of the code will not be reached due to the hard redirect
-      // However, for type safety and completeness, we can return a dummy user
-      // or adjust the return type of login if it's not expected to return a User directly anymore.
-      // For now, we'll return a minimal user object.
+      // Since we redirect, return a minimal user object for type safety
       return {
         id: user.id,
         email: user.email,
@@ -196,7 +150,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
         preferred_currency: user.preferred_currency,
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Login failed'
+      // ensure we cleanup token on error
+      localStorage.removeItem('access_token')
+      delete apiClient.defaults.headers.common.Authorization
+
+      const errorMessage = error.response?.data?.detail || error.message || 'Login failed'
       set({
         error: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
         isLoading: false,
@@ -229,7 +187,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
         ...(preferred_currency ? { preferred_currency } : {}),
       }
 
-      // ✅ Correct path: no /v1 prefix, since apiClient already has /api/v1 base
       const res = await apiClient.post('/users/register', body, {
         headers: { 'Content-Type': 'application/json' },
       })
@@ -237,12 +194,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ isLoading: false })
       return res.data
     } catch (err: any) {
-      // Detailed debug logs for backend errors
       console.error('register error data:', err?.response?.data)
-      console.error('register error detail:', err?.response?.data?.detail) // Added this line
-      console.error('register error status:', err?.response?.status)
-      console.error('register axios message:', err?.message)
-
       const serverPayload = err?.response?.data
       const message =
         serverPayload?.detail ||
@@ -262,10 +214,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
   // ✅ LOGOUT
   logout: () => {
     localStorage.removeItem('access_token')
+    delete apiClient.defaults.headers.common.Authorization
     set({ user: null, token: null })
   },
 
-  // ✅ REFRESH TOKEN
+  // ✅ REFRESH TOKEN (placeholder)
   refreshToken: async () => {
     return localStorage.getItem('access_token') || ''
   },
