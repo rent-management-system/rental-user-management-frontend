@@ -148,6 +148,12 @@ export default function LoginForm() {
                 placeholder="••••••••"
               />
               {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
+              <div className="text-right mt-2">
+                <Link to="/forgot-password"
+                      className="text-sm text-orange-600 hover:underline">
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
 
             {/* Sign in button */}
