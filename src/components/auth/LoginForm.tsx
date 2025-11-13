@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
+import logo from "@/asset/W.jpg"
+
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" })
@@ -115,7 +117,7 @@ export default function LoginForm() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Emaillogo
               </label>
               <input
                 id="email"
@@ -185,7 +187,7 @@ export default function LoginForm() {
 
         {/* Right side - Logo and text */}
         <div className="hidden md:flex w-1/2 bg-white border-l border-gray-200 items-center justify-center flex-col p-10">
-          <img src="/logo.png" alt="tesfa.ai logo" className="w-24 h-24 mb-4" />
+          <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
           <h1 className="text-3xl font-semibold text-gray-800">
           </h1>
           
