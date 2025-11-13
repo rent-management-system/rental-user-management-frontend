@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
+import logo from "@/asset/W.jpg"
+
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" })
@@ -35,15 +37,49 @@ export default function LoginForm() {
     setIsLoading(true)
     setErrors({})
     try {
-      await login(formData.email, formData.password)
+      const user = await login(formData.email, formData.password)
       toast.success("Logged in successfully")
-      navigate("/")
+
+      let redirectBaseUrl: string | undefined
+
+      switch (user.role) {
+        case 'admin':
+          redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
+          break
+        case 'landlord':
+        case 'owner': // Assuming 'owner' role should redirect to landlord microfrontend
+          redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
+          break
+        case 'tenant':
+          redirectBaseUrl = import.meta.env.VITE_TENANT_MICROFRONTEND_URL
+          break
+        default:
+          redirectBaseUrl = undefined
+      }
+
+      const { token } = useAuthStore.getState()
+
+      console.log("User role:", user.role)
+      console.log("Redirect base URL:", redirectBaseUrl)
+      console.log("Token present:", !!token)
+
+      if (redirectBaseUrl && token) {
+        window.location.href = `${redirectBaseUrl.trim()}/auth/callback#access_token=${token}`
+      } else {
+        navigate("/")
+      }
     } catch (error: any) {
       console.error("Login error:", error)
+      let errorMessage = "Login failed. Please check your credentials and try again."
+      if (error.response && error.response.status === 401) {
+        errorMessage = "Incorrect email or password. Please try again."
+      } else if (error.message) {
+        errorMessage = error.message
+      }
       setErrors({
-        general: error.message || "Login failed. Please check your credentials and try again.",
+        general: errorMessage,
       })
-      toast.error(error.message || "Login failed. Please check your credentials and try again.")
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -81,7 +117,7 @@ export default function LoginForm() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Emaillogo
               </label>
               <input
                 id="email"
@@ -151,7 +187,7 @@ export default function LoginForm() {
 
         {/* Right side - Logo and text */}
         <div className="hidden md:flex w-1/2 bg-white border-l border-gray-200 items-center justify-center flex-col p-10">
-          <img src="/logo.png" alt="tesfa.ai logo" className="w-24 h-24 mb-4" />
+          <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
           <h1 className="text-3xl font-semibold text-gray-800">
           </h1>
           

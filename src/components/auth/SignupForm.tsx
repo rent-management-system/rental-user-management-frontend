@@ -10,7 +10,7 @@ type FormData = {
   password: string
   confirmPassword: string
   phone_number: string
-  role: 'tenant' | 'landlord' | 'admin'
+  role: 'tenant' | 'owner' | 'admin'
   preferred_language: string
   preferred_currency: string
 }
@@ -80,6 +80,8 @@ export const SignupForm = () => {
 
     if (!formData.phone_number) {
       newErrors.phone_number = 'Phone number is required'
+    } else if (!/^\+251[79]\d{8}$/.test(formData.phone_number)) {
+      newErrors.phone_number = 'Phone number must be in the format +2517XXXXXXXX or +2519XXXXXXXX'
     }
 
     if (!formData.preferred_language) {
@@ -102,10 +104,7 @@ export const SignupForm = () => {
     setErrors({})
 
     try {
-      console.log('Submitting form with data:', {
-        ...formData,
-        password: '***' // Don't log the actual password
-      });
+      
       
       // Call signup with all required parameters
       const result = await register({
@@ -282,7 +281,7 @@ export const SignupForm = () => {
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   >
                     <option value="tenant">Tenant</option>
-                    <option value="landlord">Landlord</option>
+                    <option value="owner">Landlord</option>
                   </select>
                 </div>
 
