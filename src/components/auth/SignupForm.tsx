@@ -347,7 +347,7 @@ export const SignupForm = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-70 transition-colors"
+                className="w-full py-3 px-4 bg-black text-black font-medium rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-70 transition-colors"
               >
                 {isLoading ? t('auth.creatingAccount') : t('auth.createAccountBtn')}
               </button>
