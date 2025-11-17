@@ -101,7 +101,7 @@ const Footer = () => {
               />
               <button
                 type="submit"
-                className="w-full mt-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+                className="w-full mt-2 px-4 py-2 bg-black text-black rounded-md hover:bg-gray-800 transition-colors"
               >
                 {t("footer.send")}
               </button>

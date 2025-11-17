@@ -6,7 +6,6 @@ import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
 import logo from "/W.jpg"
 import { useTranslation } from "react-i18next"
-import { Eye, EyeOff } from "lucide-react"
 
 
 export default function LoginForm() {
@@ -16,7 +15,6 @@ export default function LoginForm() {
   const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
   const { t } = useTranslation()
-  const [showPassword, setShowPassword] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -137,29 +135,20 @@ export default function LoginForm() {
             </div>
 
             {/* Password */}
-            <div className="relative">
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 {t("auth.password")}
               </label>
               <input
                 id="password"
                 name="password"
-                type={showPassword ? "text" : "password"}
+                type="password"
                 value={formData.password}
                 onChange={handleChange}
                 className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 text-black 
                 ${errors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"}`}
                 placeholder="••••••••"
               />
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-500 focus:outline-none focus:text-gray-600"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
               {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
             </div>
 

@@ -38,7 +38,7 @@ export default function App() {
             <Route path="/" element={
               <div className="bg-white">
                 <PublicHeader />
-                <Home />
+                <LoginForm/>
                 <Footer />
               </div>
             } />
@@ -47,21 +47,21 @@ export default function App() {
             <Route
               path="/login"
               element={
-                <>
+                <div className="bg-white">
                   <PublicHeader />
                   {isAuthenticated ? <Navigate to="/dashboard" /> : <LoginForm />}
                   <Footer />
-                </>
+                </div>
               }
             />
             <Route
               path="/signup"
               element={
-                <>
+                <div className="bg-white">
                   <PublicHeader />
                   {isAuthenticated ? <Navigate to="/dashboard" /> : <SignupForm />}
                   <Footer />
-                </>
+                </div>
               }
             />
             <Route path="/auth/callback" element={<AuthCallback />} />

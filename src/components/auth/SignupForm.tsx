@@ -319,8 +319,8 @@ export const SignupForm = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
                   >
-                    <option value="ETB">{t("auth.etb")}</option>
-                    <option value="USD">{t("auth.usd")}</option>
+                    <option value="ETB">{t("Etb")}</option>
+                    <option value="USD">{t("Usd")}</option>
                   </select>
                 </div>
               </div>
