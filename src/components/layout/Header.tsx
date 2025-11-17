@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useTheme } from "@/hooks/useTheme"
 import { useTranslation } from "react-i18next"
 
-export const Header = () => {
+const Header = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
@@ -91,3 +91,5 @@ export const Header = () => {
     </header>
   )
 }
+
+export default Header

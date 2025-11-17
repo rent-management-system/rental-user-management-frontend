@@ -4,7 +4,9 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
-import logo from "@/asset/W.jpg"
+import logo from "/W.jpg"
+import { useTranslation } from "react-i18next"
+import { Eye, EyeOff } from "lucide-react"
 
 
 export default function LoginForm() {
@@ -13,6 +15,8 @@ export default function LoginForm() {
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
+  const { t } = useTranslation()
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -24,9 +28,9 @@ export default function LoginForm() {
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {}
-    if (!formData.email) newErrors.email = "Invalid email address"
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email address"
-    if (!formData.password) newErrors.password = "You need a password to Login."
+    if (!formData.email) newErrors.email = t("auth.invalidEmail")
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = t("auth.invalidEmail")
+    if (!formData.password) newErrors.password = t("auth.passwordRequired")
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -38,7 +42,7 @@ export default function LoginForm() {
     setErrors({})
     try {
       const user = await login(formData.email, formData.password)
-      toast.success("Logged in successfully")
+      toast.success(t("auth.loginSuccess"))
 
       let redirectBaseUrl: string | undefined
 
@@ -70,9 +74,9 @@ export default function LoginForm() {
       }
     } catch (error: any) {
       console.error("Login error:", error)
-      let errorMessage = "Login failed. Please check your credentials and try again."
+      let errorMessage = t("auth.loginFailedGeneric")
       if (error.response && error.response.status === 401) {
-        errorMessage = "Incorrect email or password. Please try again."
+        errorMessage = t("auth.incorrectCredentials")
       } else if (error.message) {
         errorMessage = error.message
       }
@@ -89,11 +93,11 @@ export default function LoginForm() {
     try {
       setIsLoading(true)
       await googleAuth(credentialResponse.credential || "")
-      toast.success("Logged in with Google successfully")
+      toast.success(t("auth.loginSuccessGoogle"))
       navigate("/")
     } catch (error: any) {
       console.error("Google login error:", error)
-      toast.error(error.message || "Google login failed. Please try again.")
+      toast.error(error.message || t("auth.loginFailedGoogle"))
     } finally {
       setIsLoading(false)
     }
@@ -104,8 +108,8 @@ export default function LoginForm() {
       <div className="flex w-full max-w-5xl bg-white rounded-lg shadow-md overflow-hidden">
         {/* Left side - Form */}
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600 mb-8">Sign in to your account</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t("auth.welcomeBack")}</h2>
+          <p className="text-gray-600 mb-8">{t("signInToAccount")}</p>
 
           {errors.general && (
             <div className="p-3 mb-4 bg-red-50 rounded-md border-l-4 border-red-500">
@@ -117,7 +121,7 @@ export default function LoginForm() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Emaillogo
+                {t("auth.email")}
               </label>
               <input
                 id="email"
@@ -125,7 +129,7 @@ export default function LoginForm() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 text-black 
                 ${errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"}`}
                 placeholder="your-company@email.com"
               />
@@ -133,20 +137,29 @@ export default function LoginForm() {
             </div>
 
             {/* Password */}
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                {t("auth.password")}
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 text-black 
                 ${errors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"}`}
                 placeholder="••••••••"
               />
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-gray-500 focus:outline-none focus:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
             </div>
 
@@ -156,31 +169,31 @@ export default function LoginForm() {
               disabled={isLoading}
               className="w-full py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition disabled:opacity-70"
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? t("auth.signingIn") : t("auth.login")}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            Or continue with
+            {t("auth.orContinueWith")}
           </div>
 
           <div className="mt-3">
             <button
               onClick={handleGoogleSuccess}
               type="button"
-              className="w-full flex items-center justify-center py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition"
+              className="w-full flex items-center justify-center py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition text-black"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
               </svg>
-              Sign in with Google
+              {t("auth.signInWithGoogle")}
             </button>
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-600">
-            Don’t have an account?{" "}
-            <Link to="/signup" className="font-medium text-orange-600 hover:underline">
-              Sign up
+            {t("auth.dontHaveAccount")}{" "}
+            <Link to="/signup" className="font-medium text-black hover:underline">
+              {t("auth.signup")}
             </Link>
           </p>
         </div>

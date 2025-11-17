@@ -12,8 +12,8 @@
     "back": "Back"
   },
   "auth": {
-    "login": "Login",
-    "signup": "Sign Up",
+    "login": "Sign in",
+    "signup": "Sign up",
     "email": "Email",
     "password": "Password",
     "name": "Full Name",
@@ -26,7 +26,28 @@
     "loginSuccess": "Login successful!",
     "signupSuccess": "Signup successful!",
     "loginFailed": "Login failed",
-    "signupFailed": "Signup failed"
+    "signupFailed": "Signup failed",
+    "welcomeBack": "Welcome Back",
+    "signInToAccount": "Sign in to your account",
+    "orContinueWith": "Or continue with",
+    "signInWithGoogle": "Sign in with Google",
+    "dontHaveAccount": "Don’t have an account?",
+    "createAccount": "Create an account",
+    "startRentalJourney": "Start your rental journey with us",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "phoneNumber": "Phone Number",
+    "confirmPassword": "Confirm Password",
+    "iAmA": "I am a",
+    "currency": "Currency",
+    "preferredLanguage": "Preferred Language",
+    "english": "English",
+    "amharic": "Amharic",
+    "oromiffa": "Oromiffa",
+    "createAccountBtn": "Create Account",
+    "signUpWithGoogle": "Sign up with Google",
+    "alreadyHaveAccount": "Already have an account?"
+
   },
   "profile": {
     "editProfile": "Edit Profile",
@@ -71,5 +92,40 @@
     "pendingReports": "Pending Reports",
     "systemHealth": "System Health",
     "recentUsers": "Recent Users"
+  },
+  "header": {
+    "home": "Home",
+    "about": "About",
+    "properties": "Properties",
+    "testimonials": "Testimonials",
+    "contact": "Contact",
+    "english_option": "English",
+    "amharic_option": "Amharic",
+    "afan_oromo_option": "Afan Oromo"
+  },
+  "footer": {
+    "footer_title": "Bete Properties",
+    "footer_description": "A trusted platform connecting landlords and tenants across Ethiopia. List properties with an affordable pay-per-post model or find verified apartments, condominiums and private houses near you.",
+    "quickLinks": "Quick Links",
+    "for_landlords_link": "For Landlords",
+    "resources": "Resources",
+    "contactUs": "Contact Us",
+    "faq": "FAQ",
+    "termsOfService": "Terms of Service",
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved.",
+    "company": "COMPANY",
+    "aboutUs": "About Us",
+    "propertyManagers": "Property Managers",
+    "reviews": "Reviews",
+    "howItWorks": "How It Works",
+    "workingHours": "WORKING HOURS",
+    "workingHours_mon_fri": "Mon - Fri: 9:00 AM - 6:00 PM",
+    "workingHours_sat": "Sat: 10:00 AM - 4:00 PM",
+    "workingHours_sun": "Sun: Closed",
+    "subscription": "SUBSCRIPTION",
+    "subscription_text": "Subscribe with your email to receive new listings and platform updates.",
+    "enterEmail": "enter email address",
+    "send": "Send"
   }
 }

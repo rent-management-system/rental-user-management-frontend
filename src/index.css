@@ -5,46 +5,55 @@
 @layer base {
   :root {
     /* Modern color palette */
-    --primary: 59 130 246;        /* Blue-500 */
-    --primary-foreground: 255 255 255;
+    --primary: 240 5.9% 10%;        /* Blue-500 */
+    --primary-foreground: 0 0% 98%;
     --primary-dark: 37 99 235;    /* Blue-600 */
-    --secondary: 34 197 94;       /* Green-500 */
-    --secondary-foreground: 255 255 255;
-    --accent: 168 85 247;         /* Purple-500 */
-    --accent-foreground: 255 255 255;
-    --background: 249 250 251;    /* Gray-50 */
-    --foreground: 17 24 39;       /* Gray-900 */
-    --card: 255 255 255;          /* White */
-    --card-foreground: 17 24 39;  /* Gray-900 */
-    --muted: 243 244 246;         /* Gray-100 */
-    --muted-foreground: 107 114 128; /* Gray-500 */
-    --border: 229 231 235;        /* Gray-200 */
-    --input: 209 213 219;         /* Gray-300 */
-    --ring: 59 130 246;           /* Blue-500 */
-    --ring-color: 59 130 246;     /* Same as primary for focus rings */
+    --secondary: 240 4.8% 95.9%;       /* Green-500 */
+    --secondary-foreground: 240 5.9% 10%;
+    --accent: 240 4.8% 95.9%;         /* Purple-500 */
+    --accent-foreground: 240 5.9% 10%;
+    --background: 0 0% 100%;    /* Gray-50 */
+    --foreground: 240 10% 3.9%;       /* Gray-900 */
+    --card: 0 0% 100%;          /* White */
+    --card-foreground: 240 10% 3.9%;  /* Gray-900 */
+    --muted: 240 4.8% 95.9%;         /* Gray-100 */
+    --muted-foreground: 240 3.8% 46.1%; /* Gray-500 */
+    --border: 240 5.9% 90%;        /* Gray-200 */
+    --input: 240 5.9% 90%;         /* Gray-300 */
+    --ring: 240 10% 3.9%;           /* Blue-500 */
+    --ring-color: 59 130 246;
     --radius: 0.5rem;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   [data-theme="dark"] {
-    --primary: 37 99 235;         /* Blue-600 */
+    --primary: 37 99 235;
     --primary-foreground: 255 255 255;
-    --primary-hover: 29 78 216;   /* Blue-700 */
-    --secondary: 34 197 94;       /* Green-500 */
+    --primary-hover: 29 78 216;
+    --secondary: 34 197 94;
     --secondary-foreground: 255 255 255;
-    --accent: 168 85 247;         /* Purple-500 */
+    --accent: 168 85 247;
     --accent-foreground: 255 255 255;
-    --background: 17 24 39;       /* Gray-900 */
-    --foreground: 243 244 246;    /* Gray-100 */
-    --card: 31 41 55;             /* Gray-800 */
-    --card-foreground: 243 244 246; /* Gray-100 */
-    --muted: 55 65 81;            /* Gray-700 */
-    --muted-foreground: 156 163 175; /* Gray-400 */
-    --border: 55 65 81;           /* Gray-700 */
-    --input: 75 85 99;            /* Gray-600 */
-    --ring: 96 165 250;           /* Blue-400 */
+    --background: 17 24 39;
+    --foreground: 243 244 246;
+    --card: 31 41 55;
+    --card-foreground: 243 244 246;
+    --muted: 55 65 81;
+    --muted-foreground: 156 163 175;
+    --border: 55 65 81;
+    --input: 75 85 99;
+    --ring: 96 165 250;
   }
 
   * {
@@ -55,15 +64,40 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
 }
 
 @layer components {
-  /* Base container */
   .container {
     @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full;
   }
 
-  /* Buttons */
   .btn {
     @apply inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background;
   }
@@ -83,4 +117,91 @@
   .card {
     @apply rounded-lg border border-border bg-background p-6 shadow-sm;
   }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ========================================================= */
+/* 🔥 FIX ADDED — REMOVE ALL ORANGE BACKGROUNDS GLOBALLY     */
+/* ========================================================= */
+/* Remove orange backgrounds globally */
+.bg-orange-500,
+.bg-orange-400,
+.bg-orange-300,
+.bg-orange-200,
+.bg-orange-100 {
+  background-color: transparent !important;
+}
+
+/* If background uses exact hex color */
+*[style*="#FFA500"],
+*[style*="#ff8c00"],
+*[style*="#f97316"] {
+  background-color: transparent !important;
+}
+/* ========== Force-remove orange backgrounds (put at BOTTOM of global CSS) ========== */
+
+/* 1) Common hexes & case variants found in your project */
+[class*="f97316"],
+[class*="FFA500"],
+[class*="ff8c00"],
+[class*="F97316"],
+[class*="ffa500"],
+[class*="FF8C00"],
+/* 2) Classes that include the hex (Tailwind arbitrary classes become part of the class name) */
+[class*="#f97316"],
+[class*="#FFA500"],
+[class*="#ff8c00"],
+/* 3) Inline styles that contain those hex values */
+[style*="f97316"],
+[style*="F97316"],
+[style*="#f97316"],
+[style*="FFA500"],
+[style*="#FFA500"],
+[style*="ff8c00"],
+[style*="#ff8c00"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;    /* in case the orange is a shadow effect */
+}
+
+/* 4) Make sure pseudo elements are cleared too */
+[class*="f97316"]::before,
+[class*="f97316"]::after,
+[class*="FFA500"]::before,
+[class*="FFA500"]::after,
+[style*="f97316"]::before,
+[style*="f97316"]::after,
+[style*="#f97316"]::before,
+[style*="#f97316"]::after {
+  background: transparent !important;
+  background-image: none !important;
+  content: none !important;
+}
+
+/* 5) If the orange is coming from a gradient string (e.g. "linear-gradient(...f97316...)") */
+[style*="linear-gradient"][style*="f97316"],
+[style*="linear-gradient"][style*="FFA500"],
+[style*="linear-gradient"][style*="ff8c00"] {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* 6) Safe global fallback — removes any element using an inline background-color that's orange-ish in RGB */
+[style*="rgb(249,115,22)"],
+[style*="rgb(255,165,0)"] {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+* {
+  background-color: white !important;
 }
