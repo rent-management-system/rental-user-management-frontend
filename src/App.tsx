@@ -14,6 +14,8 @@ import { AuthCallback } from "@/components/auth/AuthCallback"
 import { Dashboard } from "@/pages/Dashboard"
 import { ProfileEditor } from "@/components/profile/ProfileEditor"
 import { ProfileView } from "@/components/profile/ProfileView"
+import ForgotPassword from "@/components/auth/ForgotPassword"
+import ResetPassword from "@/components/auth/ResetPassword"
 
 export default function App() {
   const { isAuthenticated } = useAuth()
@@ -29,6 +31,8 @@ export default function App() {
             <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginForm />} />
             <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignupForm />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected Routes */}
             <Route
