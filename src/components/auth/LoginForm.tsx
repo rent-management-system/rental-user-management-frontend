@@ -1,15 +1,17 @@
-"use client"
+
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
 import logo from "@/asset/W.jpg"
-
+import { Eye, EyeOff } from "lucide-react"
+import { GoogleLogin } from "@react-oauth/google"
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
@@ -99,6 +101,10 @@ export default function LoginForm() {
     }
   }
 
+  const handleBackToMainPage = () => {
+    window.location.href = "https://rent-management-system-tau.vercel.app/";
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex w-full max-w-5xl bg-white rounded-lg shadow-md overflow-hidden">
@@ -134,20 +140,43 @@ export default function LoginForm() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
-                ${errors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"}`}
-                placeholder="••••••••"
-              />
-              {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
+                ${
+                  errors.password
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-gray-400"
+                }`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+              )}
+              <div className="text-sm text-right mt-2">
+                <Link to="/forgot-password" className="font-medium text-orange-600 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             {/* Sign in button */}
@@ -165,16 +194,12 @@ export default function LoginForm() {
           </div>
 
           <div className="mt-3">
-            <button
-              onClick={handleGoogleSuccess}
-              type="button"
-              className="w-full flex items-center justify-center py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition"
-            >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-              </svg>
-              Sign in with Google
-            </button>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => {
+                toast.error("Google login failed. Please try again.");
+              }}
+            />
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-600">
@@ -183,6 +208,15 @@ export default function LoginForm() {
               Sign up
             </Link>
           </p>
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={handleBackToMainPage}
+              className="font-medium text-blue-600 hover:underline"
+            >
+              Back to Main Page
+            </button>
+          </div>
         </div>
 
         {/* Right side - Logo and text */}
