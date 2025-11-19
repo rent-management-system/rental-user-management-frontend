@@ -26,7 +26,20 @@
     "loginSuccess": "Login successful!",
     "signupSuccess": "Signup successful!",
     "loginFailed": "Login failed",
-    "signupFailed": "Signup failed"
+    "signupFailed": "Signup failed",
+    "welcomeBack": "Welcome Back",
+    "signInToAccount": "Sign in to your account",
+    "invalidEmail": "Invalid email address",
+    "passwordRequired": "You need a password to Login.",
+    "incorrectCredentials": "Incorrect email or password. Please try again.",
+    "googleLoginSuccess": "Logged in with Google successfully",
+    "googleLoginFailed": "Google login failed. Please try again.",
+    "signingIn": "Signing in...",
+    "signIn": "Sign in",
+    "orContinueWith": "Or continue with",
+    "signUp": "Sign up",
+    "backToMainPage": "Back to Main Page",
+    "signInWithGoogle": "Sign in with Google"
   },
   "profile": {
     "editProfile": "Edit Profile",
