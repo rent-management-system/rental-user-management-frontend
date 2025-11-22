@@ -9,7 +9,6 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import LoginForm from "@/components/auth/LoginForm"
 import { SignupForm } from "@/components/auth/SignupForm"
 import { AuthCallback } from "@/components/auth/AuthCallback"
-import { Dashboard } from "@/pages/Dashboard"
 import { ProfileEditor } from "@/components/profile/ProfileEditor"
 import { ProfileView } from "@/components/profile/ProfileView"
 import ForgotPassword from "@/components/auth/ForgotPassword"
@@ -28,11 +27,11 @@ export default function App() {
             {/* Public Routes */}
             <Route
               path="/login"
-              element={!isLoading && isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginForm />}
+              element={!isLoading && isAuthenticated ? <Navigate to="/profile" replace /> : <LoginForm />}
             />
             <Route
               path="/signup"
-              element={!isLoading && isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupForm />}
+              element={!isLoading && isAuthenticated ? <Navigate to="/profile" replace /> : <SignupForm />}
             />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -49,10 +48,9 @@ export default function App() {
                       <Header />
                       <main className="flex-1 overflow-auto">
                         <Routes>
-                          <Route path="/dashboard" element={<Dashboard />} />
                           <Route path="/profile" element={<ProfileView />} />
                           <Route path="/profile/edit" element={<ProfileEditor />} />
-                          <Route path="*" element={<Navigate to="/dashboard" />} />
+                          <Route path="*" element={<Navigate to="/profile" />} />
                         </Routes>
                       </main>
                     </div>
@@ -66,3 +64,4 @@ export default function App() {
     </ErrorBoundary>
   )
 }
+

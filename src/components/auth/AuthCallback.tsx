@@ -22,21 +22,47 @@ export const AuthCallback = () => {
       }
 
       try {
-        await setTokenAndFetchUser(tokenToUse)
+        const user = await setTokenAndFetchUser(tokenToUse)
 
         // Remove token from URL for cleanliness and security
         // Replace the current history entry so token isn't in history stack
         try {
           const cleanPath = window.location.pathname // keeps /auth/callback path
-          const newUrl = cleanPath // or you can set '/dashboard' directly
+          const newUrl = cleanPath // we will perform a hard redirect below
           window.history.replaceState({}, document.title, newUrl)
         } catch (e) {
           // ignore replaceState errors
         }
 
-        // Navigate to dashboard (replace history entry)
-        navigate('/dashboard', { replace: true })
-        toast.success('Login successful!')
+        // Determine destination based on role and env vars
+        let redirectBaseUrl = ''
+        switch (user.role) {
+          case 'admin':
+            redirectBaseUrl = (import.meta.env.VITE_ADMIN_MICROFRONTEND_URL as string) || ''
+            break
+          case 'landlord':
+            redirectBaseUrl = (import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL as string) || ''
+            break
+          case 'tenant':
+            redirectBaseUrl = (import.meta.env.VITE_TENANT_MICROFRONTEND_URL as string) || ''
+            break
+          default:
+            redirectBaseUrl = ''
+        }
+
+        if (!redirectBaseUrl) {
+          toast.error(`Redirect URL not configured for role: ${user.role}`)
+          navigate('/login', { replace: true })
+          return
+        }
+
+        const cleanBase = redirectBaseUrl.trim().replace(/\/+$/,'')
+        const encodedToken = encodeURIComponent(tokenToUse)
+        const externalCallbackUrl = `${cleanBase}/auth/callback?token=${encodedToken}`
+
+        // Hard redirect to the appropriate microfrontend
+        window.location.href = externalCallbackUrl
+        return
       } catch (err) {
         console.error('Error processing token in callback:', err)
         toast.error(error || 'Failed to process login token.')
@@ -57,3 +83,4 @@ export const AuthCallback = () => {
 }
 
 export default AuthCallback
+
