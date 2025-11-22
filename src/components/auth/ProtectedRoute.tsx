@@ -57,6 +57,11 @@ export const ProtectedRoute = ({ children: _children, requiredRole: _requiredRol
     window.location.href = externalCallbackUrl
   }, [isAuthenticated, user?.role, token])
 
-  // While the hard redirect happens, render nothing to avoid internal page flash
-  return <></>
+  // While the hard redirect happens, show a minimal loading screen to avoid a blank page
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <span className="sr-only">Redirecting...</span>
+    </div>
+  )
 }
