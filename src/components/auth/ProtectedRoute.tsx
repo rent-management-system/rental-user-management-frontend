@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import { useEffect } from "react"
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -12,8 +11,8 @@ interface ProtectedRouteProps {
   requiredRole?: UserRole
 }
 
-export const ProtectedRoute = ({ children: _children, requiredRole: _requiredRole }: ProtectedRouteProps) => {
-  const { isAuthenticated, user, isLoading, token } = useAuth()
+export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+  const { isAuthenticated, user, isLoading } = useAuth()
 
   // Avoid redirects while auth state is hydrating
   if (isLoading) {
@@ -28,40 +27,9 @@ export const ProtectedRoute = ({ children: _children, requiredRole: _requiredRol
     return <Navigate to="/login" replace />
   }
 
-  // When authenticated, redirect directly to external microfrontend based on role
-  useEffect(() => {
-    if (!isAuthenticated || !user?.role) return
+  if (requiredRole && user?.role !== requiredRole) {
+    return <Navigate to="/dashboard" replace />
+  }
 
-    let redirectBaseUrl = ''
-    switch (user.role) {
-      case 'admin':
-        redirectBaseUrl = (import.meta.env.VITE_ADMIN_MICROFRONTEND_URL as string) || ''
-        break
-      case 'landlord':
-        redirectBaseUrl = (import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL as string) || ''
-        break
-      case 'tenant':
-        redirectBaseUrl = (import.meta.env.VITE_TENANT_MICROFRONTEND_URL as string) || ''
-        break
-      default:
-        redirectBaseUrl = ''
-    }
-
-    if (!redirectBaseUrl) return
-
-    const cleanBase = redirectBaseUrl.trim().replace(/\/+$/,'')
-    const encodedToken = encodeURIComponent(token || localStorage.getItem('access_token') || '')
-    const externalCallbackUrl = `${cleanBase}/auth/callback?token=${encodedToken}`
-
-    // Hard redirect
-    window.location.href = externalCallbackUrl
-  }, [isAuthenticated, user?.role, token])
-
-  // While the hard redirect happens, show a minimal loading screen to avoid a blank page
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      <span className="sr-only">Redirecting...</span>
-    </div>
-  )
+  return <>{children}</>
 }

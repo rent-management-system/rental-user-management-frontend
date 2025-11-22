@@ -9,6 +9,7 @@ export const Sidebar = () => {
   const isActive = (path: string) => location.pathname === path
 
   const commonLinks = [
+    { path: "/dashboard", label: "Dashboard" },
     { path: "/profile", label: "Profile" },
   ]
 
@@ -55,4 +56,3 @@ export const Sidebar = () => {
     </aside>
   )
 }
-
