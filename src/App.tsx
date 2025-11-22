@@ -1,5 +1,3 @@
-
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { useTheme } from "@/hooks/useTheme"
@@ -18,7 +16,7 @@ import ForgotPassword from "@/components/auth/ForgotPassword"
 import ResetPassword from "@/components/auth/ResetPassword"
 
 export default function App() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
   const { theme } = useTheme()
 
   return (
@@ -28,8 +26,14 @@ export default function App() {
         <div className={theme === "dark" ? "dark" : ""}>
           <Routes>
             {/* Public Routes */}
-            <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginForm />} />
-            <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignupForm />} />
+            <Route
+              path="/login"
+              element={!isLoading && isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginForm />}
+            />
+            <Route
+              path="/signup"
+              element={!isLoading && isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignupForm />}
+            />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
