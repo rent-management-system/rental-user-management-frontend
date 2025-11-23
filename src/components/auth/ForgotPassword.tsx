@@ -12,7 +12,7 @@ export default function ForgotPassword() {
     setMessage("");
 
     try {
-      const res = await fetch("https://rent-managment-system-user-magt.onrender.com/forgot-password", {
+      const res = await fetch("https://rent-managment-system-user-magt.onrender.com/api/v1/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

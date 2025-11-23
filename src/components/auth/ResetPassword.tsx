@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 export default function ResetPassword() {
   const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,6 +21,10 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== passwordConfirm) {
+      setMessage("Passwords do not match.");
+      return;
+    }
     if (!token) {
       setMessage("Reset token is missing.");
       return;
@@ -30,10 +35,10 @@ export default function ResetPassword() {
     setIsSuccess(false);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/auth/reset-password", {
+      const res = await fetch("https://rent-managment-system-user-magt.onrender.com/api/v1/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }), // Updated key
+        body: JSON.stringify({ token, password, passwordConfirm }),
       });
 
       const data = await res.json();
@@ -65,7 +70,7 @@ export default function ResetPassword() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password"className="block text-sm font-medium text-gray-700 mb-1">
                 New Password
               </label>
               <input
@@ -74,6 +79,25 @@ export default function ResetPassword() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 border-gray-300 focus:ring-gray-400"
+                placeholder="••••••••"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="passwordConfirm"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Confirm New Password
+              </label>
+              <input
+                id="passwordConfirm"
+                name="passwordConfirm"
+                type="password"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 border-gray-300 focus:ring-gray-400"
                 placeholder="••••••••"
                 required
