@@ -17,6 +17,7 @@ export interface User {
 
 interface AuthActions {
   login: (email: string, password: string) => Promise<User>
+  googleAuth: (credential: string) => Promise<User>
   register: (
     userData: Omit<User, 'id' | 'is_active' | 'created_at' | 'updated_at'> & {
       password: string
@@ -167,6 +168,49 @@ export const useAuthStore = create<AuthStore>((set) => ({
         isLoading: false,
       })
       throw error
+    }
+  },
+
+  googleAuth: async (credential: string): Promise<User> => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.post('/auth/google', { credential });
+      const { access_token } = response.data;
+      if (!access_token) throw new Error('No access_token returned from Google auth');
+
+      localStorage.setItem('access_token', access_token);
+      apiClient.defaults.headers.common.Authorization = `Bearer ${access_token}`;
+
+      const userResponse = await apiClient.get('/users/me');
+      const user = userResponse.data;
+
+      if (user.role === 'owner') {
+        user.role = 'landlord';
+      }
+
+      const userData: User = {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+        role: user.role as 'admin' | 'landlord' | 'tenant',
+        is_active: user.is_active,
+        phone_number: user.phone_number,
+        preferred_language: user.preferred_language,
+        preferred_currency: user.preferred_currency,
+      };
+
+      set({ user: userData, token: access_token, isLoading: false });
+      return userData;
+    } catch (error: any) {
+      localStorage.removeItem('access_token');
+      delete apiClient.defaults.headers.common.Authorization;
+
+      const errorMessage = error.response?.data?.detail || error.message || 'Google authentication failed';
+      set({
+        error: Array.isArray(errorMessage) ? errorMessage[0] : errorMessage,
+        isLoading: false,
+      });
+      throw error;
     }
   },
 

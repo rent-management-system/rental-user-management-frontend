@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 
 export default function ForgotPassword() {
   const { t, i18n } = useTranslation();
+
+export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,7 @@ export default function ForgotPassword() {
 
     try {
       const res = await fetch("http://localhost:8000/forgot-password", { // This will be updated later
+      const res = await fetch("https://rent-managment-system-user-magt.onrender.com/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -35,6 +38,12 @@ export default function ForgotPassword() {
       }
     } catch (error) {
       setMessage(t("forgotPassword.serverNotReachable"));
+        setMessage(data.detail || "Something went wrong");
+      } else {
+        setMessage(data.message || "Reset link sent successfully!");
+      }
+    } catch (error) {
+      setMessage("Server not reachable. Check if backend is running.");
     } finally {
       setLoading(false);
     }
@@ -58,12 +67,15 @@ export default function ForgotPassword() {
           </div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t("forgotPassword.title")}</h2>
           <p className="text-gray-600 mb-8">{t("forgotPassword.instructions")}</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Forgot Password</h2>
+          <p className="text-gray-600 mb-8">Enter your email to receive a password reset link.</p>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 {t("forgotPassword.emailLabel")}
+                Email
               </label>
               <input
                 id="email"
@@ -73,6 +85,7 @@ export default function ForgotPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 border-gray-300 focus:ring-gray-400"
                 placeholder={t("forgotPassword.emailPlaceholder")}
+                placeholder="your-company@email.com"
                 required
               />
             </div>
@@ -84,6 +97,7 @@ export default function ForgotPassword() {
               className="w-full py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition disabled:opacity-70"
             >
               {loading ? t("forgotPassword.sending") : t("forgotPassword.sendResetLink")}
+              {loading ? "Sending..." : "Send Reset Link"}
             </button>
           </form>
 

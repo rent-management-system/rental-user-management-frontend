@@ -26,7 +26,20 @@
     "loginSuccess": "Seenuun milkaa'ina!",
     "signupSuccess": "Galmaa'uu milkaa'ina!",
     "loginFailed": "Seenuun dogoggore",
-    "signupFailed": "Galmaa'uu dogoggore"
+    "signupFailed": "Galmaa'uu dogoggore",
+    "welcomeBack": "Baga Nagaan Deebitan",
+    "signInToAccount": "Gara akkawuntii keessanitti seenaa",
+    "invalidEmail": "Teessoon imeelii sirrii miti",
+    "passwordRequired": "Seenuuf jecha icciitii barbaachisa.",
+    "incorrectCredentials": "Imeelii yookiin jecha icciitii sirrii miti. Irra deebi'ii yaali.",
+    "googleLoginSuccess": "Google'n seenuun milkaa'eera",
+    "googleLoginFailed": "Google'n seenuun hin milkoofne. Irra deebi'ii yaali.",
+    "signingIn": "Seenaa jira...",
+    "signIn": "Seeni",
+    "orContinueWith": "Yookin itti fufi",
+    "signUp": "Galmaa'u",
+    "backToMainPage": "Gara fuula duraatti deebi'i",
+    "signInWithGoogle": "Google tiin seeni"
   },
   "profile": {
     "editProfile": "Profaayila Gulaaluu",

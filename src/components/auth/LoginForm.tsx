@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
@@ -7,11 +5,14 @@ import { toast } from "sonner"
 import logo from "@/asset/W.jpg"
 import { useTranslation } from "react-i18next"
 
+import { Eye, EyeOff } from "lucide-react"
+import { GoogleLogin } from "@react-oauth/google"
 
 export default function LoginForm() {
   const { t, i18n } = useTranslation()
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
@@ -105,6 +106,10 @@ export default function LoginForm() {
     }
   }
 
+  const handleBackToMainPage = () => {
+    window.location.href = "https://rent-management-system-tau.vercel.app/";
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex w-full max-w-5xl bg-white rounded-lg shadow-md overflow-hidden">
@@ -168,6 +173,41 @@ export default function LoginForm() {
               <div className="text-right text-sm mt-1">
                 <Link to="/forgot-password" className="font-medium text-orange-600 hover:underline">
                   {t("loginForm.forgotPassword")}
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
+                ${
+                  errors.password
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-gray-400"
+                }`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+              )}
+              <div className="text-sm text-right mt-2">
+                <Link to="/forgot-password" className="font-medium text-orange-600 hover:underline">
+                  Forgot password?
                 </Link>
               </div>
             </div>
@@ -197,6 +237,12 @@ export default function LoginForm() {
               </svg>
               {t("loginForm.signInWithGoogle")}
             </button>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => {
+                toast.error("Google login failed. Please try again.");
+              }}
+            />
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-600">
@@ -205,6 +251,15 @@ export default function LoginForm() {
               {t("loginForm.signUp")}
             </Link>
           </p>
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={handleBackToMainPage}
+              className="font-medium text-blue-600 hover:underline"
+            >
+              Back to Main Page
+            </button>
+          </div>
         </div>
 
         {/* Right side - Logo and text */}
@@ -219,3 +274,4 @@ export default function LoginForm() {
   )
 }
 
+}
