@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
@@ -5,14 +7,11 @@ import { toast } from "sonner"
 import logo from "@/asset/W.jpg"
 import { useTranslation } from "react-i18next"
 
-import { Eye, EyeOff } from "lucide-react"
-import { GoogleLogin } from "@react-oauth/google"
-
 export default function LoginForm() {
   const { t, i18n } = useTranslation()
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false) // New state for password visibility
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
@@ -27,6 +26,11 @@ export default function LoginForm() {
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }))
     }
+  }
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev)
   }
 
   const validateForm = () => {
@@ -106,10 +110,6 @@ export default function LoginForm() {
     }
   }
 
-  const handleBackToMainPage = () => {
-    window.location.href = "https://rent-management-system-tau.vercel.app/";
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex w-full max-w-5xl bg-white rounded-lg shadow-md overflow-hidden">
@@ -155,29 +155,9 @@ export default function LoginForm() {
             </div>
 
             {/* Password */}
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 {t("loginForm.password")}
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
-                ${errors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"}`}
-                placeholder={t("loginForm.passwordPlaceholder")}
-              />
-              {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
-              <div className="text-right text-sm mt-1">
-                <Link to="/forgot-password" className="font-medium text-orange-600 hover:underline">
-                  {t("loginForm.forgotPassword")}
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Password
               </label>
               <div className="relative">
                 <input
@@ -186,28 +166,35 @@ export default function LoginForm() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 
-                ${
-                  errors.password
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-gray-400"
-                }`}
-                  placeholder="••••••••"
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 pr-10
+                  ${errors.password ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"}`}
+                  placeholder={t("loginForm.passwordPlaceholder")}
                 />
+                {/* Eye icon button */}
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? (
+                    // Eye open icon (visible password)
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  ) : (
+                    // Eye closed icon (hidden password)
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m9.02 9.02l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  )}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
-              )}
-              <div className="text-sm text-right mt-2">
+              {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
+              <div className="text-right text-sm mt-1">
                 <Link to="/forgot-password" className="font-medium text-orange-600 hover:underline">
-                  Forgot password?
+                  {t("loginForm.forgotPassword")}
                 </Link>
               </div>
             </div>
@@ -237,12 +224,6 @@ export default function LoginForm() {
               </svg>
               {t("loginForm.signInWithGoogle")}
             </button>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => {
-                toast.error("Google login failed. Please try again.");
-              }}
-            />
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-600">
@@ -251,15 +232,6 @@ export default function LoginForm() {
               {t("loginForm.signUp")}
             </Link>
           </p>
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={handleBackToMainPage}
-              className="font-medium text-blue-600 hover:underline"
-            >
-              Back to Main Page
-            </button>
-          </div>
         </div>
 
         {/* Right side - Logo and text */}
@@ -272,6 +244,4 @@ export default function LoginForm() {
       </div>
     </div>
   )
-}
-
 }
