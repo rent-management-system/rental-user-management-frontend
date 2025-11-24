@@ -16,7 +16,6 @@ import ForgotPassword from "@/components/auth/ForgotPassword" // Import ForgotPa
 import { Dashboard } from "@/pages/Dashboard"
 import { ProfileEditor } from "@/components/profile/ProfileEditor"
 import { ProfileView } from "@/components/profile/ProfileView"
-import ForgotPassword from "@/components/auth/ForgotPassword"
 import ResetPassword from "@/components/auth/ResetPassword"
 
 export default function App() {
