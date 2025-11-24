@@ -11,7 +11,7 @@ export default function LoginForm() {
   const { t, i18n } = useTranslation()
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false) // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
@@ -58,7 +58,7 @@ export default function LoginForm() {
           redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
           break
         case 'landlord':
-        case 'owner': // Assuming 'owner' role should redirect to landlord microfrontend
+        case 'owner':
           redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
           break
         case 'tenant':
@@ -232,6 +232,21 @@ export default function LoginForm() {
               {t("loginForm.signUp")}
             </Link>
           </p>
+
+          {/* Back to Main Page Link at the bottom */}
+          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+            <a 
+              href="https://rent-management-system-tau.vercel.app/" 
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              {t("back To Mainpage")}
+            </a>
+          </div>
         </div>
 
         {/* Right side - Logo and text */}
@@ -239,7 +254,6 @@ export default function LoginForm() {
           <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
           <h1 className="text-3xl font-semibold text-gray-800">
           </h1>
-          
         </div>
       </div>
     </div>
