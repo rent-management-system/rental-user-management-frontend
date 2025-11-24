@@ -1,3 +1,6 @@
+
+
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { useTheme } from "@/hooks/useTheme"
@@ -9,6 +12,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import LoginForm from "@/components/auth/LoginForm"
 import { SignupForm } from "@/components/auth/SignupForm"
 import { AuthCallback } from "@/components/auth/AuthCallback"
+import ForgotPassword from "@/components/auth/ForgotPassword" // Import ForgotPassword component
 import { Dashboard } from "@/pages/Dashboard"
 import { ProfileEditor } from "@/components/profile/ProfileEditor"
 import { ProfileView } from "@/components/profile/ProfileView"
@@ -26,6 +30,9 @@ export default function App() {
         <div className={theme === "dark" ? "dark" : ""}>
           <Routes>
             {/* Public Routes */}
+            <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginForm />} />
+            <Route path="/signup" element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignupForm />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Add ForgotPassword Route */}
             <Route
               path="/login"
               element={!isLoading && isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginForm />}

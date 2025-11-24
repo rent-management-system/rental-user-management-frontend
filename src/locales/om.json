@@ -84,5 +84,73 @@
     "pendingReports": "Gabaasaa Eegamaa Jiru",
     "systemHealth": "Fayyaa Sirnaa",
     "recentUsers": "Fayyadamtoonni Yeroo Dhiyoo"
+  },
+  "loginForm": {
+    "welcomeBack": "Deebana Nagaa",
+    "signInAccount": "Akkaawuntii kee seenaa",
+    "email": "Imeelii",
+    "emailPlaceholder": "your-company@email.com",
+    "password": "Jecha icciitii",
+    "passwordPlaceholder": "••••••••",
+    "signingIn": "Seenaa jira...",
+    "signIn": "Seenaa",
+    "orContinueWith": "Yookiin itti fufi",
+    "signInWithGoogle": "Google waliin seenaa",
+    "noAccount": "Akkaawuntii hin qabduu?",
+    "signUp": "Galmaa'i",
+    "forgotPassword": "Jecha icciitii irraanfatte?"
+  },
+  "validation": {
+    "emailRequired": "Teessoon imeelii sirrii miti",
+    "emailInvalid": "Teessoon imeelii sirrii miti",
+    "passwordRequiredLogin": "Seenuuf jecha icciitii barbaachisa.",
+    "fullNameRequired": "Maqaan guutuu barbaachisa",
+    "passwordRequired": "Jechi icciitii barbaachisa",
+    "passwordMinLength": "Jechi icciitii gabatee 6 yoo xiqqaate qabaachuu qaba",
+    "passwordsDoNotMatch": "Jechi icciitii wal hin simu",
+    "phoneNumberRequired": "Lakkoofsa bilbilaa barbaachisa",
+    "phoneNumberInvalid": "Lakkoofsi bilbilaa amala +2517XXXXXXXX yookaan +2519XXXXXXXX qabaachuu qaba",
+    "preferredLanguageRequired": "Afaan filatamaan barbaachisa",
+    "preferredCurrencyRequired": "Waldaan filatamaan barbaachisa"
+  },
+  "toast": {
+    "loggedInSuccessfully": "Milkaa'inaan seentee jirta",
+    "loggedInGoogle": "Google waliin milkaa'inaan seentee jirta",
+    "signupFailed": "Galmeessuun milkaa'ina hin qabne",
+    "accountCreatedSuccessfully": "Akkaawuntii milkaa'inaan uumame!",
+    "redirectingToLogin": "Gara fuula seenuutti deebi'aa jirta."
+  },
+  "error": {
+    "loginFailedGeneral": "Seenuun milkaa'ina hin qabne. Odeeffannoo kee sirrii ta'uu isaa mirkaneeffadhuu deebi'ii yaali.",
+    "incorrectCredentials": "Imeelii yookiin jechi icciitii dogoggora. Deebi'ii yaali.",
+    "googleLoginFailed": "Google waliin seenuun milkaa'ina hin qabne. Deebi'ii yaali.",
+    "title": "Dogoggora"
+  },
+  "signupForm": {
+    "createAccount": "Akkaawuntii uumi",
+    "startJourney": "Imala kireeffannaa kee nu waliin jalqabi",
+    "fullName": "Maqaa Guutuu",
+    "fullNamePlaceholder": "Jhon Doe",
+    "emailAddress": "Teessoo Imeelii",
+    "emailPlaceholder": "you@example.com",
+    "phoneNumber": "Lakkoofsa Bilbilaa",
+    "phoneNumberPlaceholder": "+251 9XX XXX XXXX",
+    "password": "Jecha icciitii",
+    "passwordPlaceholder": "••••••••",
+    "confirmPassword": "Jecha icciitii mirkaneessi",
+    "confirmPasswordPlaceholder": "••••••••",
+    "iAmA": "Ani",
+    "tenant": "Kireessaa",
+    "landlord": "Abbaa lafaa",
+    "currency": "Maallaqa",
+    "etb": "ETB",
+    "usd": "USD",
+    "preferredLanguage": "Afaan Filatamaa",
+    "creatingAccount": "Akkaawuntii uumaa jira...",
+    "createAccountButton": "Akkaawuntii Uumi",
+    "orContinueWith": "Yookiin itti fufi",
+    "signUpWithGoogle": "Google waliin galmaa'i",
+    "alreadyHaveAccount": "Duraanuu akkaawuntii qabduu?",
+    "signIn": "Seeni"
   }
 }

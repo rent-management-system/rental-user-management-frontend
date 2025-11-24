@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import logo from "@/asset/W.jpg"
 
 export default function ForgotPassword() {
@@ -12,7 +13,7 @@ export default function ForgotPassword() {
     setMessage("");
 
     try {
-      const res = await fetch("https://rent-managment-system-user-magt.onrender.com/forgot-password", {
+      const res = await fetch("http://localhost:8000/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -73,7 +74,7 @@ export default function ForgotPassword() {
 
         {/* Right side - Logo and text */}
         <div className="hidden md:flex w-1/2 bg-white border-l border-gray-200 items-center justify-center flex-col p-10">
-          <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
+        <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
           <h1 className="text-3xl font-semibold text-gray-800">
           </h1>
         </div>
