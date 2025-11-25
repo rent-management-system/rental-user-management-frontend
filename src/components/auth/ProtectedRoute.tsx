@@ -11,6 +11,6 @@ interface ProtectedRouteProps {
 // This component is no longer needed for authentication microservice
 // All authenticated users are redirected to their respective microfrontends
 // Keeping this for backward compatibility, but it just redirects to login
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+export const ProtectedRoute = (_props: ProtectedRouteProps) => {
   return <Navigate to="/login" replace />
 }
