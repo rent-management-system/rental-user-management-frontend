@@ -188,19 +188,44 @@ export const useAuthStore = create<AuthStore>((set) => ({
         user.role = 'landlord';
       }
 
-      const userData: User = {
+      // Build redirect URL based on user role
+      let redirectBaseUrl = ''
+      switch (user.role) {
+        case 'admin':
+          redirectBaseUrl = (import.meta.env.VITE_ADMIN_MICROFRONTEND_URL as string) || ''
+          break
+        case 'landlord':
+          redirectBaseUrl = (import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL as string) || ''
+          break
+        case 'tenant':
+          redirectBaseUrl = (import.meta.env.VITE_TENANT_MICROFRONTEND_URL as string) || ''
+          break
+        default:
+          throw new Error('Unknown user role for redirection.')
+      }
+
+      if (!redirectBaseUrl) {
+        throw new Error(`Redirect URL not configured for role: ${user.role}`)
+      }
+
+      // Redirect to microfrontend with token
+      const cleanBase = redirectBaseUrl.trim().replace(/\/+$/, '')
+      const encodedToken = encodeURIComponent(access_token)
+      const redirectUrl = `${cleanBase}/auth/callback?token=${encodedToken}`
+
+      window.location.href = redirectUrl
+
+      // Return minimal user object for type safety
+      return {
         id: user.id,
         email: user.email,
         full_name: user.full_name,
-        role: user.role as 'admin' | 'landlord' | 'tenant',
+        role: user.role,
         is_active: user.is_active,
         phone_number: user.phone_number,
         preferred_language: user.preferred_language,
         preferred_currency: user.preferred_currency,
-      };
-
-      set({ user: userData, token: access_token, isLoading: false });
-      return userData;
+      }
     } catch (error: any) {
       localStorage.removeItem('access_token');
       delete apiClient.defaults.headers.common.Authorization;
