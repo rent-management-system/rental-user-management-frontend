@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useAuthStore } from "@/lib/auth-store"
 import { toast } from "sonner"
 import logo from "@/asset/W.jpg"
@@ -13,7 +13,6 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
-  const navigate = useNavigate()
   const { login, googleAuth } = useAuthStore()
 
   const changeLanguage = (lng: string) => {
@@ -48,37 +47,10 @@ export default function LoginForm() {
     setIsLoading(true)
     setErrors({})
     try {
-      const user = await login(formData.email, formData.password)
-      toast.success(t("toast.loggedInSuccessfully"))
-
-      let redirectBaseUrl: string | undefined
-
-      switch (user.role) {
-        case 'admin':
-          redirectBaseUrl = import.meta.env.VITE_ADMIN_MICROFRONTEND_URL
-          break
-        case 'landlord':
-        case 'owner':
-          redirectBaseUrl = import.meta.env.VITE_LANDLORD_MICROFRONTEND_URL
-          break
-        case 'tenant':
-          redirectBaseUrl = import.meta.env.VITE_TENANT_MICROFRONTEND_URL
-          break
-        default:
-          redirectBaseUrl = undefined
-      }
-
-      const { token } = useAuthStore.getState()
-
-      console.log("User role:", user.role)
-      console.log("Redirect base URL:", redirectBaseUrl)
-      console.log("Token present:", !!token)
-
-      if (redirectBaseUrl && token) {
-        window.location.href = `${redirectBaseUrl.trim()}/auth/callback#access_token=${token}`
-      } else {
-        navigate("/")
-      }
+      // login() in auth-store handles the redirect to microfrontend
+      await login(formData.email, formData.password)
+      // No need to do anything here - the auth-store will redirect
+      // The page will redirect before this line is reached
     } catch (error: any) {
       console.error("Login error:", error)
       let errorMessage = t("error.loginFailedGeneral")
@@ -91,7 +63,6 @@ export default function LoginForm() {
         general: errorMessage,
       })
       toast.error(errorMessage)
-    } finally {
       setIsLoading(false)
     }
   }
@@ -99,13 +70,13 @@ export default function LoginForm() {
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
       setIsLoading(true)
+      // googleAuth() in auth-store handles the redirect to microfrontend
       await googleAuth(credentialResponse.credential || "")
-      toast.success(t("toast.loggedInGoogle"))
-      navigate("/")
+      // No need to do anything here - the auth-store will redirect
+      // The page will redirect before this line is reached
     } catch (error: any) {
       console.error("Google login error:", error)
       toast.error(error.message || t("error.googleLoginFailed"))
-    } finally {
       setIsLoading(false)
     }
   }
