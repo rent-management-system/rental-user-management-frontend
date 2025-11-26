@@ -14,8 +14,6 @@ type FormData = {
   confirmPassword: string
   phone_number: string
   role: 'tenant' | 'owner' | 'admin'
-  preferred_language: string
-  preferred_currency: string
 }
 
 export const SignupForm = () => {
@@ -28,9 +26,7 @@ export const SignupForm = () => {
     password: "",
     confirmPassword: "",
     phone_number: "",
-    role: "tenant",
-    preferred_language: "en",
-    preferred_currency: "ETB"
+    role: "tenant"
   })
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -41,8 +37,6 @@ export const SignupForm = () => {
     password?: string
     confirmPassword?: string
     phone_number?: string
-    preferred_language?: string
-    preferred_currency?: string
     general?: string
   }>({})
 
@@ -102,14 +96,6 @@ export const SignupForm = () => {
       newErrors.phone_number = t('validation.phoneNumberInvalid')
     }
 
-    if (!formData.preferred_language) {
-      newErrors.preferred_language = t('validation.preferredLanguageRequired')
-    }
-
-    if (!formData.preferred_currency) {
-      newErrors.preferred_currency = t('validation.preferredCurrencyRequired')
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -123,14 +109,15 @@ export const SignupForm = () => {
 
     try {
       // Call signup with all required parameters
+      // Always send ETB for currency and en for language
       const result = await register({
         email: formData.email,
         password: formData.password,
         full_name: formData.full_name,
         phone_number: formData.phone_number,
         role: formData.role,
-        preferred_language: formData.preferred_language,
-        preferred_currency: formData.preferred_currency,
+        preferred_language: "en",
+        preferred_currency: "ETB",
       })
 
       console.log('register result:', result)
@@ -148,29 +135,86 @@ export const SignupForm = () => {
     } catch (error: any) {
       console.error('Signup error:', error)
 
-      // Show backend or JS error messages. Support string, newline-separated strings, or array messages.
-      const backendMessage = error?.response?.data?.message || error?.message
-      if (typeof backendMessage === 'string') {
-        toast.error(t('error.title'), {
-          description: backendMessage,
-          duration: 5000,
-        })
-      } else if (Array.isArray(backendMessage)) {
-        backendMessage.forEach((msg) => {
-          toast.error(t('error.title'), {
-            description: msg,
-            duration: 5000,
-          })
-        })
+      let errorMessage = "Registration failed"
+      const newErrors: Record<string, string> = {}
+
+      if (error.response) {
+        const status = error.response.status
+        const data = error.response.data
+        const detail = data?.detail || data?.message || data?.error
+        const detailLower = typeof detail === 'string' ? detail.toLowerCase() : ''
+
+        switch (status) {
+          case 400:
+            errorMessage = "Invalid input. Please check all fields."
+            
+            // Handle field-specific validation errors
+            if (data?.errors) {
+              Object.keys(data.errors).forEach(field => {
+                newErrors[field] = data.errors[field]
+              })
+            }
+            
+            if (detail) {
+              errorMessage = detail
+            }
+            break
+
+          case 409:
+            // Email already exists
+            if (detailLower.includes('email') || detailLower.includes('already exists')) {
+              errorMessage = "This email is already registered. Please login or use a different email."
+              newErrors.email = "Email already registered"
+            } else {
+              errorMessage = detail || "This account already exists."
+            }
+            break
+
+          case 422:
+            errorMessage = "Validation error. Please check all fields."
+            
+            // Handle detailed validation errors from FastAPI
+            if (Array.isArray(detail)) {
+              const errors = detail.map(err => {
+                if (typeof err === 'object' && err.msg) {
+                  const field = err.loc?.[err.loc.length - 1]
+                  if (field) {
+                    newErrors[field] = err.msg
+                  }
+                  return err.msg
+                }
+                return err
+              })
+              errorMessage = errors.join(', ')
+            } else if (detail) {
+              errorMessage = detail
+            }
+            break
+
+          case 500:
+            errorMessage = "Server error. Please try again later."
+            break
+
+          default:
+            errorMessage = detail || "Registration failed. Please try again."
+        }
+      } else if (error.request) {
+        errorMessage = "Unable to connect to server. Please check your internet connection."
+      } else {
+        errorMessage = error.message || "An unexpected error occurred"
       }
-      
-      // Handle field-specific errors if they exist in the error object
-      if (error.response?.data?.errors) {
-        setErrors(prev => ({
-          ...prev,
-          ...error.response.data.errors
-        }))
+
+      // Set field-specific errors
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors)
+      } else {
+        setErrors({ general: errorMessage })
       }
+
+      // Show error toast
+      toast.error(errorMessage, {
+        duration: 5000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -332,54 +376,19 @@ export const SignupForm = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('signupForm.iAmA')}
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  >
-                    <option value="tenant">{t('signupForm.tenant')}</option>
-                    <option value="owner">{t('signupForm.landlord')}</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="preferred_currency" className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('signupForm.currency')}
-                  </label>
-                  <select
-                    id="preferred_currency"
-                    name="preferred_currency"
-                    value={formData.preferred_currency}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  >
-                    <option value="ETB">{t('signupForm.etb')}</option>
-                    <option value="USD">{t('signupForm.usd')}</option>
-                  </select>
-                </div>
-              </div>
-
               <div>
-                <label htmlFor="preferred_language" className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('signupForm.preferredLanguage')}
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('signupForm.iAmA')}
                 </label>
                 <select
-                  id="preferred_language"
-                  name="preferred_language"
-                  value={formData.preferred_language}
+                  id="role"
+                  name="role"
+                  value={formData.role}
                   onChange={handleChange}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 >
-                  <option value="en">English</option>
-                  <option value="am">አማርኛ</option>
-                  <option value="om">Oromiffa</option>
+                  <option value="tenant">{t('signupForm.tenant')}</option>
+                  <option value="owner">{t('signupForm.landlord')}</option>
                 </select>
               </div>
             </div>

@@ -53,15 +53,73 @@ export default function LoginForm() {
       // The page will redirect before this line is reached
     } catch (error: any) {
       console.error("Login error:", error)
-      let errorMessage = t("error.loginFailedGeneral")
-      if (error.response && error.response.status === 401) {
-        errorMessage = t("error.incorrectCredentials")
-      } else if (error.message) {
-        errorMessage = error.message
+      
+      let errorMessage = "Login failed"
+      
+      if (error.response) {
+        const status = error.response.status
+        const data = error.response.data
+        const detail = data?.detail || data?.message || data?.error
+        const detailLower = typeof detail === 'string' ? detail.toLowerCase() : ''
+        
+        switch (status) {
+          case 401:
+            // Specific messages for authentication failures
+            if (detailLower.includes('incorrect') || 
+                detailLower.includes('invalid credentials') ||
+                detailLower.includes('wrong password')) {
+              errorMessage = "Incorrect email or password"
+            } else if (detailLower.includes('email')) {
+              errorMessage = "Email not found. Please check your email or sign up."
+            } else {
+              errorMessage = detail || "Incorrect email or password"
+            }
+            setErrors({
+              general: errorMessage,
+              email: " ",
+              password: " "
+            })
+            break
+          
+          case 404:
+            errorMessage = "Account not found. This email is not registered."
+            setErrors({
+              general: errorMessage,
+              email: "Email not registered"
+            })
+            break
+          
+          case 403:
+            if (detailLower.includes('disabled') || detailLower.includes('inactive')) {
+              errorMessage = "Your account has been disabled. Please contact support."
+            } else {
+              errorMessage = "Access denied. Please contact support."
+            }
+            setErrors({ general: errorMessage })
+            break
+          
+          case 422:
+            errorMessage = detail || "Validation error. Please check your input."
+            setErrors({ general: errorMessage })
+            break
+          
+          case 500:
+            errorMessage = "Server error. Please try again later."
+            setErrors({ general: errorMessage })
+            break
+          
+          default:
+            errorMessage = detail || "Login failed. Please try again."
+            setErrors({ general: errorMessage })
+        }
+      } else if (error.request) {
+        errorMessage = "Unable to connect to server. Please check your internet connection."
+        setErrors({ general: errorMessage })
+      } else {
+        errorMessage = error.message || "An unexpected error occurred"
+        setErrors({ general: errorMessage })
       }
-      setErrors({
-        general: errorMessage,
-      })
+      
       toast.error(errorMessage)
       setIsLoading(false)
     }
@@ -76,7 +134,34 @@ export default function LoginForm() {
       // The page will redirect before this line is reached
     } catch (error: any) {
       console.error("Google login error:", error)
-      toast.error(error.message || t("error.googleLoginFailed"))
+      
+      let errorMessage = "Google login failed"
+      
+      if (error.response) {
+        const status = error.response.status
+        const data = error.response.data
+        const detail = data?.detail || data?.message || data?.error
+        const detailLower = typeof detail === 'string' ? detail.toLowerCase() : ''
+        
+        if (status === 401) {
+          errorMessage = "Google authentication failed. Unable to verify your account."
+        } else if (status === 404) {
+          if (detailLower.includes('user') || detailLower.includes('account')) {
+            errorMessage = "No account found with this Google account. Please sign up first."
+          } else {
+            errorMessage = "Account not found. Please sign up first."
+          }
+        } else {
+          errorMessage = detail || "Google login failed. Please try again."
+        }
+      } else if (error.request) {
+        errorMessage = "Unable to connect to server. Please check your internet connection."
+      } else {
+        errorMessage = error.message || "Google login failed. Please try again."
+      }
+      
+      setErrors({ general: errorMessage })
+      toast.error(errorMessage)
       setIsLoading(false)
     }
   }

@@ -1,33 +1,89 @@
 import { useState } from "react";
-
-import logo from "@/asset/W.jpg"
+import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import apiClient from "@/lib/api-client";
+import logo from "@/asset/W.jpg";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<{ email?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const validateEmail = () => {
+    if (!email) {
+      setErrors({ email: "Email is required" });
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setErrors({ email: "Please enter a valid email address" });
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateEmail()) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     setLoading(true);
-    setMessage("");
+    setIsSuccess(false);
+    setErrors({});
 
     try {
-      const res = await fetch("http://localhost:8000/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await apiClient.post("/auth/forgot-password", { email });
+      const data = res.data;
 
-      const data = await res.json();
+      setIsSuccess(true);
+      toast.success(data.message || "Reset link sent! Please check your email.");
+    } catch (error: any) {
+      console.error("Forgot password error:", error);
+      
+      let errorMessage = "Failed to send reset link";
 
-      if (!res.ok) {
-        setMessage(data.detail || "Something went wrong");
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        const detail = data?.detail || data?.message || data?.error;
+        const detailLower = typeof detail === 'string' ? detail.toLowerCase() : '';
+
+        switch (status) {
+          case 404:
+            if (detailLower.includes('email') || detailLower.includes('user') || detailLower.includes('account')) {
+              errorMessage = "Email not found. This email is not registered.";
+              setErrors({ email: "Email not registered" });
+            } else {
+              errorMessage = detail || "Email not found";
+            }
+            break;
+
+          case 400:
+            errorMessage = detail || "Invalid request. Please check your email.";
+            break;
+
+          case 429:
+            errorMessage = "Too many requests. Please wait a few minutes before trying again.";
+            break;
+
+          case 500:
+            errorMessage = "Server error. Unable to send reset email. Please try again later.";
+            break;
+
+          default:
+            errorMessage = detail || "Failed to send reset link. Please try again.";
+        }
+      } else if (error.request) {
+        errorMessage = "Unable to connect to server. Please check your internet connection.";
       } else {
-        setMessage(data.message || "Reset link sent successfully!");
+        errorMessage = error.message || "An unexpected error occurred";
       }
-    } catch (error) {
-      setMessage("Server not reachable. Check if backend is running.");
+
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -41,40 +97,57 @@ export default function ForgotPassword() {
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">Forgot Password</h2>
           <p className="text-gray-600 mb-8">Enter your email to receive a password reset link.</p>
 
+          {isSuccess && (
+            <div className="mb-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+              <p className="text-green-700 font-medium">Reset link sent successfully!</p>
+              <p className="text-green-600 text-sm mt-1">Please check your email inbox and spam folder.</p>
+            </div>
+          )}
+
           <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Email Address
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 border-gray-300 focus:ring-gray-400"
-                placeholder="your-company@email.com"
-                required
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors({});
+                }}
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 ${
+                  errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-gray-400"
+                }`}
+                placeholder="your-email@example.com"
+                disabled={loading}
               />
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
             {/* Send Reset Link button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition disabled:opacity-70"
+              className="w-full py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
           </form>
 
-          {message && <p className="mt-4 text-center text-sm text-gray-600">{message}</p>}
+          <div className="mt-6 text-center">
+            <Link to="/login" className="text-sm text-gray-600 hover:text-gray-800">
+              ← Back to Login
+            </Link>
+          </div>
         </div>
 
         {/* Right side - Logo and text */}
         <div className="hidden md:flex w-1/2 bg-white border-l border-gray-200 items-center justify-center flex-col p-10">
-        <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
+          <img src={logo} alt="tesfa.ai logo" className="w-45 h45 mb-4" />
           <h1 className="text-3xl font-semibold text-gray-800">
           </h1>
         </div>
